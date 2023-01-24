@@ -42,6 +42,8 @@ INSTALLED_APPS = [
 
     # Users application
     'users_app.apps.UsersAppConfig',
+    'appointments_app.apps.AppointmentsAppConfig',
+    
 
 ]
 
