@@ -24,7 +24,6 @@
     function update_calendar(doctor_id, year, week_number) {
         const request = new XMLHttpRequest();
         request.open('GET', '/appointment/api/calendar/' + doctor_id + '/' + year + '/' + week_number + '/');
-
         request.send();
 
         request.onload = function () {
@@ -41,8 +40,8 @@
 
     // event listener for the NextWeek Button
     document.getElementById("btnNextWeek").addEventListener("click", function () {
-        
-        
+
+        // 
         doctor_id = "1"
         year = "2022"
         week_number = "1"
