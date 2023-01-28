@@ -18,7 +18,17 @@
 
 
 
+<!-- A JavaScript date library for parsing, validating, manipulating, and formatting dates. -->
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+
 <script>
+
+    sessionStorage.setItem("year", {{ year }});
+    sessionStorage.setItem("week_number", {{ week_number }});
+
+    console.log("week_number (get item)" + sessionStorage.getItem("week_number"));
+
+
 
     // update calendar by sending a request to the server 
     function update_calendar(doctor_id, year, week_number) {
@@ -28,13 +38,14 @@
 
         request.onload = function () {
             if (request.status == 200) {
-                alert("Received");
+                //alert("Received");
                 //console.log(request.response)
                 let table = document.getElementById('table_calendar');
                 table.innerHTML = request.response;
             }
+            return true;
         };
-
+        return true;
     };
 
 
@@ -42,11 +53,52 @@
     document.getElementById("btnNextWeek").addEventListener("click", function () {
 
         // 
-        doctor_id = "1"
-        year = "2022"
-        week_number = "1"
-        update_calendar(doctor_id, year, week_number);
+        // doctor_id = "1"
+        // year = "2022"
+        // week_number = "1"
+        // update_calendar(doctor_id, year, week_number);
+
+        let year = sessionStorage.getItem("year");
+        let week_number = sessionStorage.getItem("week_number");
+
+        console.log("week_number (get item)" + week_number);
+
+        // increment week number by one
+        week_number = parseInt(week_number, 10);
+        week_number += 1;
+        sessionStorage.setItem("week_number", week_number);
+
+        // check if the incremented week number exists in the given year
+        let year_js = moment().year(year);
+        let number_of_weeks = year_js.weeksInYear();
+
+        if (week_number > number_of_weeks) {
+
+            // if the incremented week does not exist in the current year then we need to switch
+            // to the next year with week number of 1.
+            year = parseInt(year, 10);
+            year += 1;
+            sessionStorage.setItem("year", year);
+
+            week_number = 1;
+            sessionStorage.setItem("week_number", week_number);
+        }
+
+
+        console.log("week_number " + week_number);
+        update_calendar({{ doctor_id }}, year, week_number);
+
+    // https://stackoverflow.com/questions/72494154/a-listener-indicated-an-asynchronous-response-by-returning-true-but-the-messag
+    return true;
+       
+
     });
+
+
+    document.onload = update_calendar({{ doctor_id }}, {{ year }}, {{ week_number }});
+
+
+
 
 
 </script>
