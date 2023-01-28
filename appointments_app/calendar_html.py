@@ -51,7 +51,7 @@ class WeekAppointmentCalendar:
 
         tbl = "<td>"
 
-        tbl += f'{day_of_month:%d %A}'  # str(day_of_month)
+        tbl += f'{day_of_month:%d}'  # str(day_of_month)
 
         tbl += "<table class='table table-hover'><tbody>"
 

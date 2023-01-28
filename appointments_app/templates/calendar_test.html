@@ -4,80 +4,88 @@
 
 {% block content %}
 
-<p2> Calendar </p2>
-
+<div class="row">
+    <p2> Calendar </p2>
+</div>
 <!-- {% if user.is_authenticated %} -->
 
 <!-- {% endif %} -->
 
-<button id="btnPreviousWeek">Previous</button>
+<div class="row">
 
-<button id="btnNextWeek">Next</button>
+    <div class="btn-group" role="group">
+        <div class="col">
+            <button type="button" class="btn btn-success float-start btn-lg" id="btnPreviousWeek">&#x3c;&#x3c; Previous
+                Week</button>
+        </div>
+
+        <div class="col">
+            <button type="button" class="btn btn-success float-end btn-lg" id="btnNextWeek"> &ensp; &ensp;Next Week
+                &#x3e;&#x3e;</button>
+        </div>
+    </div>
+
+</div>
 
 <table class='table' id='table_calendar'></table>
-
-
 
 <!-- A JavaScript date library for parsing, validating, manipulating, and formatting dates. -->
 <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
 
-
 <script>
 
-    const calendarUpdater = {
+    // update week calendar  
+    function update_calendar(doctor_id, year, week_number) {
+        const request = new XMLHttpRequest();
+        request.open('GET', '/appointment/api/calendar/' + doctor_id + '/' + year + '/' + week_number + '/');
+        request.send();
 
-        update_calendar: function (doctor_id, year, week_number) {
-            const request = new XMLHttpRequest();
-            request.open('GET', '/appointment/api/calendar/' + doctor_id + '/' + year + '/' + week_number + '/');
-            request.send();
-
-            request.onload = function () {
-                if (request.status == 200) {
-                    let table = document.getElementById('table_calendar');
-                    table.innerHTML = request.response;
-                }
-            };
-            return true;
-        },
-
-        get_number_of_weeks: function (year) {
-
-            // check if the incremented week number exists in the given year
-            const year_js = moment().year(year);
-            return year_js.weeksInYear();
-        },
-
-        increment_week_number: function () {
-
-            year = parseInt(sessionStorage.getItem("year"), 10);
-            week_number = parseInt(sessionStorage.getItem("week_number"), 10);
-
-
-            week_number += 1;
-
-            const number_of_weeks = this.get_number_of_weeks(year);
-
-            if (week_number > number_of_weeks) {
-
-                // if the incremented week does not exist in the current year then we need to switch
-                // to the next year with week number of 1.
-
-                year += 1;
-                sessionStorage.setItem("year", year);
-
-                week_number = 1;
-
+        request.onload = function () {
+            if (request.status == 200) {
+                let table = document.getElementById('table_calendar');
+                table.innerHTML = request.response;
             }
+        };
+        return true;
+    };
 
-            sessionStorage.setItem("week_number", week_number);
+    // return a number of isoweeks in the sent year
+    function get_number_of_weeks(year) {
 
-            this.update_calendar({{ doctor_id }}, year, week_number);
+        const year_js = moment().year(year);
+        return year_js.weeksInYear();
+    };
+
+    // increment week number by one and update calendar
+    function increment_week_number() {
+
+        year = parseInt(sessionStorage.getItem("year"), 10);
+        week_number = parseInt(sessionStorage.getItem("week_number"), 10);
+
+        week_number += 1;
+
+        const number_of_weeks = get_number_of_weeks(year);
+
+        if (week_number > number_of_weeks) {
+
+            // if the incremented week does not exist in the current year then we need to switch
+            // to the first week of the next year
+
+            year += 1;
+            sessionStorage.setItem("year", year);
+
+            week_number = 1;
+        }
+
+        sessionStorage.setItem("week_number", week_number);
+
+        update_calendar({{ doctor_id }}, year, week_number);
 
     return true;
+    };
 
-        },
-
-    decrement_week_number: function () {
+    // decrement week number by one and update calendar
+    function decrement_week_number() {
 
         year = parseInt(sessionStorage.getItem("year"), 10);
         week_number = parseInt(sessionStorage.getItem("week_number"), 10);
@@ -90,8 +98,7 @@
             year -= 1;
 
             //we need to check how many weeks are in the decremented year
-            let number_of_weeks = this.get_number_of_weeks(year);
-
+            let number_of_weeks = get_number_of_weeks(year);
 
             // and assign this number to the week counter
             week_number = number_of_weeks;
@@ -106,18 +113,10 @@
         sessionStorage.setItem("year", year);
         sessionStorage.setItem("week_number", week_number);
 
-        this.update_calendar({{ doctor_id }}, year, week_number);
+        update_calendar({{ doctor_id }}, year, week_number);
 
     return true;
-        },
     };
-
-
-
-
-
-
-
 
 </script>
 
@@ -127,76 +126,11 @@
     sessionStorage.setItem("year", {{ year }});
     sessionStorage.setItem("week_number", {{ week_number }});
 
-    // console.log("week_number (get item)" + sessionStorage.getItem("week_number"));
 
-
-
-    // // update calendar by sending a request to the server 
-    // function update_calendar(doctor_id, year, week_number) {
-    //     const request = new XMLHttpRequest();
-    //     request.open('GET', '/appointment/api/calendar/' + doctor_id + '/' + year + '/' + week_number + '/');
-    //     request.send();
-
-    //     request.onload = function () {
-    //         if (request.status == 200) {
-    //             //alert("Received");
-    //             //console.log(request.response)
-    //             let table = document.getElementById('table_calendar');
-    //             table.innerHTML = request.response;
-    //         }
-    //         //return true;
-    //     };
-    //     return true;
-    // };
-
-
-    // // event listener for the NextWeek Button
-    // document.getElementById("btnNextWeek").addEventListener("click", function () {
-
-    //     // getting stored year and week_number
-    //     let year = sessionStorage.getItem("year");
-    //     let week_number = sessionStorage.getItem("week_number");
-
-    //     console.log("week_number (get item)" + week_number);
-
-    //     // increment week number by one
-    //     week_number = parseInt(week_number, 10);
-    //     week_number += 1;
-    //     sessionStorage.setItem("week_number", week_number);
-
-    //     // check if the incremented week number exists in the given year
-    //     let year_js = moment().year(year);
-    //     let number_of_weeks = year_js.weeksInYear();
-
-    //     if (week_number > number_of_weeks) {
-
-    //         // if the incremented week does not exist in the current year then we need to switch
-    //         // to the next year with week number of 1.
-    //         year = parseInt(year, 10);
-    //         year += 1;
-    //         sessionStorage.setItem("year", year);
-
-    //         week_number = 1;
-    //         sessionStorage.setItem("week_number", week_number);
-    //     }
-
-
-    //     console.log("week_number " + week_number);
-    //     update_calendar({{ doctor_id }}, year, week_number);
-
-    // // https://stackoverflow.com/questions/72494154/a-listener-indicated-an-asynchronous-response-by-returning-true-but-the-messag
-    // return true;
-
-
-
-
-    // });
-
-
+    // declaration for the event listener for Next week button
     document.getElementById("btnNextWeek").addEventListener("click", function () {
 
-        // calendar = new calendarUpdater();
-        calendarUpdater.increment_week_number();
+        increment_week_number();
 
         // https://stackoverflow.com/questions/72494154/a-listener-indicated-an-asynchronous-response-by-returning-true-but-the-messag
         return true;
@@ -204,17 +138,18 @@
     });
 
 
+    // declaration for the event listener for Previous week button
     document.getElementById("btnPreviousWeek").addEventListener("click", function () {
 
-        // calendar = new calendarUpdater();
-        calendarUpdater.decrement_week_number();
+        decrement_week_number();
 
         // https://stackoverflow.com/questions/72494154/a-listener-indicated-an-asynchronous-response-by-returning-true-but-the-messag
         return true;
 
     });
+
     // 
-    document.onload = calendarUpdater.update_calendar({{ doctor_id }}, {{ year }}, {{ week_number }});
+    document.onload = update_calendar({{ doctor_id }}, {{ year }}, {{ week_number }});
 
 </script>
 
