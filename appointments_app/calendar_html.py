@@ -24,19 +24,21 @@ class WeekAppointmentCalendar:
         self.opening_hours_from = opening_hours_from
         self.opening_hours_till = opening_hours_till
 
-    def _addCell(self, appointment_time, color):
+    def _addCell(self, appointment_time, color, day_of_month):
         ''' Add html table cell with specified colour'''
 
         td = "<tr>"
 
         if color == "green":
-            td += "<td class='table-success'>"
+            td += "<td class='table-success'"
         elif color == "grey":
-            td += "<td class='table-secondary'>"
+            td += "<td class='table-secondary'"
         elif color == "red":
-            td += "<td class='table-danger'>"
+            td += "<td class='table-danger'"
         else:
             td += "<td>"
+
+        td += " data-date=" + "'" + f'{day_of_month:%d-%m-%Y %H:%M}'+"'"+" >"
 
         # atime is the object that contains only time (no date)
         atime = appointment_time.time()
@@ -53,7 +55,7 @@ class WeekAppointmentCalendar:
 
         tbl += f'{day_of_month:%d}'  # str(day_of_month)
 
-        tbl += "<table class='table table-hover'><tbody>"
+        tbl += "<table class='table table-hover one-day-column'><tbody>"
 
         # start time of the first appointment in the given day
         current_appointment_time = datetime.combine(
@@ -64,7 +66,7 @@ class WeekAppointmentCalendar:
 
         while current_appointment_time <= closing_time and (closing_time - current_appointment_time) >= self.appointment_duration_minutes:
 
-            tbl += self._addCell(current_appointment_time, 'green')
+            tbl += self._addCell(current_appointment_time, 'green', current_appointment_time)
 
             current_appointment_time = current_appointment_time + \
                 self.appointment_duration_minutes
