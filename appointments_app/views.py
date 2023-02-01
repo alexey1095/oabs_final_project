@@ -26,8 +26,8 @@ def appointment_view(request):
 
 
 # @login_required
-def calendar_view(request, doctor_id, year, week_number):
-    ''' to be accessed via XMLHttpRequest '''
+def send_week_calendar(request, doctor_id, year, week_number):
+    ''' # generate and send week calendar --this url is to be accessed via XMLHttpRequest from the week_calendar.html webpage '''
 
     # week_number = 1
 
@@ -48,3 +48,8 @@ def calendar_view(request, doctor_id, year, week_number):
         week_start_date, week_end_date)
 
     return HttpResponse(week_html_table, content_type="text/html", status=200)
+
+
+# @login_required
+def book_appointment(request):
+    pass

@@ -1,5 +1,9 @@
+
 from datetime import timedelta
 from datetime import datetime, time
+#from django.db import models
+from .models import Appointment
+from django.db.models import Q
 
 from isoweek import Week
 
@@ -24,7 +28,7 @@ class WeekAppointmentCalendar:
         self.opening_hours_from = opening_hours_from
         self.opening_hours_till = opening_hours_till
 
-    def _addCell(self, appointment_time, color, day_of_month):
+    def _addCell(self, appointment_date_time, color):
         ''' Add html table cell with specified colour'''
 
         td = "<tr>"
@@ -38,18 +42,37 @@ class WeekAppointmentCalendar:
         else:
             td += "<td>"
 
-        td += " data-date=" + "'" + f'{day_of_month:%d-%m-%Y %H:%M}'+"'"+" >"
+        td += " data-date=" + "'" + \
+            f'{appointment_date_time:%d-%m-%Y %H:%M}'+"'"+" >"
 
         # atime is the object that contains only time (no date)
-        atime = appointment_time.time()
+        atime = appointment_date_time.time()
 
         # td += f'{atime.hour}:{atime.minute}' + "</td>" + "</tr>"
         td += f'{atime:%H}:{atime:%M}' + "</td>" + "</tr>"
 
         return td
 
+    def _get_colours(self, week_start_date, week_end_date):
+        
+        
+        query_set= Appointment.objects.filter(appointment_date__range=[week_start_date, week_end_date]).order_by('appointment_date')
+        
+        for q in query_set:
+            print(q)
+
+        
+
     def _generateOneDayColumnHTML(self, day_of_month):
         ''' Generate html table for one day with timeslots'''
+
+                
+        # select all appointments booked for the period from the sent date to the next 24 hours
+        # ADD TRY block here
+        query_set= Appointment.objects.filter(
+            Q(appointment_date__range=[day_of_month, day_of_month+timedelta(days=1)]),
+            Q(appointment_status="Confirmed") | Q(appointment_status="Requested")
+            ).order_by('appointment_date')
 
         tbl = "<td>"
 
@@ -58,17 +81,17 @@ class WeekAppointmentCalendar:
         tbl += "<table class='table table-hover one-day-column'><tbody>"
 
         # start time of the first appointment in the given day
-        current_appointment_time = datetime.combine(
+        current_appointment_date_time = datetime.combine(
             day_of_month, self.opening_hours_from)
 
         closing_time = datetime.combine(
             day_of_month, self.opening_hours_till)
 
-        while current_appointment_time <= closing_time and (closing_time - current_appointment_time) >= self.appointment_duration_minutes:
+        while current_appointment_date_time <= closing_time and (closing_time - current_appointment_date_time) >= self.appointment_duration_minutes:
 
-            tbl += self._addCell(current_appointment_time, 'green', current_appointment_time)
+            tbl += self._addCell(current_appointment_date_time, 'green')
 
-            current_appointment_time = current_appointment_time + \
+            current_appointment_date_time = current_appointment_date_time + \
                 self.appointment_duration_minutes
 
         tbl += " </tbody></table></td>"
@@ -105,6 +128,8 @@ class WeekAppointmentCalendar:
     def generate(self, week_start_date, week_end_date):
         ''' Generate html-week calendar'''
 
+        #####self._get_colours(week_start_date, week_end_date)
+
         week_calendar_html = self._createTableHeader(week_start_date)
 
         current_date = week_start_date
@@ -136,7 +161,7 @@ class WeekAppointmentCalendar:
 #         opening_hours_till=time(7, 40, 0)
 #     )
 
-#     # calendar._generateOneDayColumn('17')
+#     weekAppointmentCal._get_colours(week_start_date, week_end_date)
 #     week_html = weekAppointmentCal.generate(week_start_date, week_end_date)
 
 #     print(week_html)
