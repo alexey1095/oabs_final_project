@@ -1,7 +1,7 @@
 
 from datetime import timedelta
 from datetime import datetime, time
-#from django.db import models
+# from django.db import models
 from .models import Appointment
 from django.db.models import Q
 
@@ -28,6 +28,9 @@ class WeekAppointmentCalendar:
         self.opening_hours_from = opening_hours_from
         self.opening_hours_till = opening_hours_till
 
+        # id of the logged user
+        self.user_id = None
+
     def _addCell(self, appointment_date_time, color):
         ''' Add html table cell with specified colour'''
 
@@ -39,8 +42,10 @@ class WeekAppointmentCalendar:
             td += "<td class='table-secondary'"
         elif color == "red":
             td += "<td class='table-danger'"
+        elif color == "blue":
+            td += "<td class='table-primary'"
         else:
-            td += "<td>"
+            td += "<td"
 
         td += " data-date=" + "'" + \
             f'{appointment_date_time:%d-%m-%Y %H:%M}'+"'"+" >"
@@ -53,26 +58,36 @@ class WeekAppointmentCalendar:
 
         return td
 
-    def _get_colours(self, week_start_date, week_end_date):
-        
-        
-        query_set= Appointment.objects.filter(appointment_date__range=[week_start_date, week_end_date]).order_by('appointment_date')
-        
-        for q in query_set:
-            print(q)
+    def _get_colour(self, queryset_list):
 
-        
+        # Comment: queryset_list should contain only those appointments that have status of either 'Requested' or 'Confirmed'
+
+        colours_dict = {}
+
+        for dic in queryset_list:
+            if dic['patient_id'] == self.user_id:
+                # this is an appointment registered by this user so it should be blue
+                colours_dict[dic['appointment_date']] = 'blue'
+
+            else:
+                # this is for appointments booked by someone else
+                colours_dict[dic['appointment_date']] = 'red'
+
+        return colours_dict
 
     def _generateOneDayColumnHTML(self, day_of_month):
         ''' Generate html table for one day with timeslots'''
 
-                
         # select all appointments booked for the period from the sent date to the next 24 hours
         # ADD TRY block here
-        query_set= Appointment.objects.filter(
-            Q(appointment_date__range=[day_of_month, day_of_month+timedelta(days=1)]),
-            Q(appointment_status="Confirmed") | Q(appointment_status="Requested")
-            ).order_by('appointment_date')
+        queryset_dict = Appointment.objects.filter(
+            Q(appointment_date__range=[
+              day_of_month, day_of_month+timedelta(days=1)]),
+            Q(appointment_status="Confirmed") | Q(
+                appointment_status="Requested")
+        ).order_by('appointment_date').values()
+
+        colours_dict = self._get_colour(queryset_dict)
 
         tbl = "<td>"
 
@@ -89,7 +104,15 @@ class WeekAppointmentCalendar:
 
         while current_appointment_date_time <= closing_time and (closing_time - current_appointment_date_time) >= self.appointment_duration_minutes:
 
-            tbl += self._addCell(current_appointment_date_time, 'green')
+            try:
+
+                # check if the current date has been already booked
+                color = colours_dict[current_appointment_date_time]
+            except KeyError:
+                # when the date is not in the dict it means the date/time is free for booking
+                color='green'
+
+            tbl += self._addCell(current_appointment_date_time, color)
 
             current_appointment_date_time = current_appointment_date_time + \
                 self.appointment_duration_minutes
@@ -125,10 +148,12 @@ class WeekAppointmentCalendar:
 
         return html_table
 
-    def generate(self, week_start_date, week_end_date):
+    def generate(self, user_id, week_start_date, week_end_date):
         ''' Generate html-week calendar'''
 
-        #####self._get_colours(week_start_date, week_end_date)
+        self.user_id = user_id
+
+        # self._get_colours(week_start_date, week_end_date)
 
         week_calendar_html = self._createTableHeader(week_start_date)
 

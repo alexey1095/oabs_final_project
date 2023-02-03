@@ -35,42 +35,33 @@
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex=">
     aria-labelledby=" staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <form action="{% url 'book_appointment' %}" method="post">
-            {% csrf_token %}
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Book an appointment?</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="modal_body">
-                    No text
-                </div>
-
-                <!-- Textarea for entering symptoms -->
-                <div class="modal-body" id="modal_body2">
-                    <h6>Enter your symptoms here: </h6>
-                    <textarea id="symptoms" name="symptoms" rows="4" cols="44" required></textarea>
-                </div>
-
-
-
-
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close window</button>
-
-
-
-
-
-                    <input type="hidden" name="doctor_id" value={{ doctor_id }} />
-                    <input type="hidden" name="appointment_date_str" value="TBA" />
-                    <button type="submit" class="btn btn-primary">Book</button>
-
-
-                </div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Book an appointment?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        </form>
+            <div class="modal-body" id="modal_body">
+                No text
+            </div>
+
+            <!-- Textarea for entering symptoms -->
+            <div class="modal-body" id="modal_body2">
+                <h6>Enter your symptoms here: </h6>
+                <textarea id="symptoms" name="symptoms" rows="4" cols="44" required></textarea>
+            </div>
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close window</button>
+
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="doctor_id" value= {{ doctor_id }} />
+                    <button type="submit" class="btn btn-primary">Book</button>
+                </form>
+
+            </div>
+        </div>
     </div>
 </div>
 
@@ -134,7 +125,7 @@
 
         // get body element from the modal dialog and add text
         const mbody = document.getElementById('modal_body');
-        mbody.innerHTML = '<h6>' + '{{ doctor_name }}' + '</h6>' + '<p>' + data_date + '</p>';
+        mbody.innerHTML = '<h6>' + '{{ doctor_name }}' + '</h6>' +'<p>' + data_date +'</p>';
 
 
         var myModal = new bootstrap.Modal(document.getElementById('staticBackdrop'), {
