@@ -160,3 +160,8 @@ def book_appointment(request):
 #     form = YourForm(request.POST)
 #     if form.is_valid():
 #         cleaned_test = form.cleaned_data["test"]
+
+
+# @login_required
+def cancel_appointment(request):
+    return HttpResponseNotFound("Error: view is not defined.")

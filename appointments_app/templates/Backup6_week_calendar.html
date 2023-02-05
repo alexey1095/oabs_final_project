@@ -46,11 +46,11 @@
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex=">
     aria-labelledby=" staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <form action="None" method="post" name="modalForm">
+        <form action="{% url 'appointments_app:book_appointment' %}" method="post" name="modalForm">
             {% csrf_token %}
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalFormTitle">Title_none</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel">Book an appointment?</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="modal_body">
@@ -58,8 +58,9 @@
                 </div>
 
                 <!-- Textarea for entering symptoms -->
-                <div class="modal-body" id="modal_symptoms">
-                    
+                <div class="modal-body" id="modal_body2">
+                    <h6>Enter your symptoms here: </h6>
+                    <textarea id="symptoms" name="symptoms" rows="4" cols="44" required></textarea>
                 </div>
 
 
@@ -75,7 +76,7 @@
 
                     <input type="hidden" name="doctor" value={{ doctor_id }} />
                     <!-- <input type="hidden" id="appointment_date_str" name="appointment_date_str" value="" /> -->
-                    <button type="submit" class="btn btn-primary" id="modalFormSubmitButton">None</button>
+                    <button type="submit" class="btn btn-primary">Book</button>
 
 
                 </div>
@@ -97,8 +98,7 @@
 
         const cell = e.target.closest('td');
 
-        // store the colour of the current cell
-        colour_cell = '';
+        colour_cell = None;
 
 
         if (!cell) {
@@ -116,8 +116,7 @@
             return;
         // Blue cell
         } else if (cell.className =='table-primary'){
-            console.log("Blue cell");
-            colour_cell = 'blue';
+            colour_cell = 'blue'
 
 
         }else{
@@ -127,7 +126,7 @@
             
 
         // reading date and time from data-date attribute
-        const data_date = cell.dataset.date;
+        const data_date = cell.dataset.date
 
 
         // get body element from the modal dialog and add text
@@ -142,49 +141,8 @@
         // depending on the cell colour we define the behaviour of the modal window
         if (colour_cell == 'green'){
 
-            // patient can book an appointment for the green timeslots 
-
             document.modalForm.action = "{% url 'appointments_app:book_appointment' %}";
-            const submit_button = document.getElementById('modalFormSubmitButton');
-            submit_button.innerText ='Book';
 
-            
-            const form_title = document.getElementById('modalFormTitle');
-            form_title.innerText ='Book appointment?';
-
-
-            const msymptoms = document.getElementById('modal_symptoms');
-            msymptoms.innerHTML = "<h6>Enter your symptoms here: </h6>";
-
-            msymptoms.innerHTML += "<textarea id='symptoms' name='symptoms' rows='4' cols='44' required></textarea>"
-
-
-
-            
-                    
-
-        } else if (colour_cell == 'blue'){
-
-            // patient can cancel the appointment for the blue timeslots 
-
-            document.modalForm.action = "{% url 'appointments_app:cancel_appointment' %}";
-            const submit_button = document.getElementById('modalFormSubmitButton');
-            submit_button.innerText ='Cancel Appointment';
-
-            
-            const form_title = document.getElementById('modalFormTitle');
-            form_title.innerText ='Cancel appointment?';
-
-            
-            // // symptom box is not needed for cancellation so we keep it empty
-            // const msymptoms = document.getElementById('modal_symptoms');
-            // msymptoms.innerHTML = "";
-
-
-
-        } else {
-            console.log('onCellClick -- Error something wrong colour is not defined. ');
-            return;
         }
 
 
