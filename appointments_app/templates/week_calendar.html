@@ -4,12 +4,19 @@
 
 {% block content %}
 
-<div class="row">
-    <p2> Calendar </p2>
-</div>
 <!-- {% if user.is_authenticated %} -->
 
 <!-- {% endif %} -->
+
+<div class="row">
+    <!-- <h4> {{ doctor_name }} </h4> -->
+
+    <nav class="navbar navbar-light">
+        <div class="container-fluid">
+          <span class="navbar-brand h1">{{ doctor_name }}</span>
+        </div>
+      </nav>
+</div>
 
 <div class="row">
 
@@ -27,15 +34,19 @@
 
 </div>
 
-<table class='table' id='table_calendar'></table>
 
+
+<div class="row">
+
+<table class='table' id='table_calendar'></table>
+</div>
 
 <!-- Adopted from https://getbootstrap.com/docs/5.0/components/modal/ -->
 <!-- Modal window-->
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex=">
     aria-labelledby=" staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <form action="{% url 'book_appointment' %}" method="post">
+        <form action="{% url 'appointments_app:book_appointment' %}" method="post">
             {% csrf_token %}
             <div class="modal-content">
                 <div class="modal-header">
@@ -56,15 +67,15 @@
 
 
 
-                <div class="modal-footer">
+                <div class="modal-footer" id="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close window</button>
 
 
 
 
 
-                    <input type="hidden" name="doctor_id" value={{ doctor_id }} />
-                    <input type="hidden" name="appointment_date_str" value="TBA" />
+                    <input type="hidden" name="doctor" value={{ doctor_id }} />
+                    <!-- <input type="hidden" id="appointment_date_str" name="appointment_date_str" value="" /> -->
                     <button type="submit" class="btn btn-primary">Book</button>
 
 
@@ -135,6 +146,21 @@
         // get body element from the modal dialog and add text
         const mbody = document.getElementById('modal_body');
         mbody.innerHTML = '<h6>' + '{{ doctor_name }}' + '</h6>' + '<p>' + data_date + '</p>';
+
+        // const dateinput = document.getElementById('appointment_date_str');
+        // mbody.innerHTML = '<h6>' + '{{ doctor_name }}' + '</h6>' + '<p>' + data_date + '</p>';
+
+        
+        // adding appointmetn date and time as a hidden input 
+        let data_date_with_T = String(data_date).trim();
+        console.log("data_date= "+ data_date_with_T);
+        // data_date_with_T = data_date_with_T.replace(' ', 'T');
+        // data_date_with_T = Date.parse('2012-01-26T13:51:50.417-07:00');
+
+        console.log("data_date= "+ data_date_with_T);
+        const modalfooter = document.getElementById('modal-footer');
+        modalfooter.innerHTML += "<input type='hidden' id='appointment_date' name='appointment_date' value= " +"'" +data_date +"'"+ " />";
+
 
 
         var myModal = new bootstrap.Modal(document.getElementById('staticBackdrop'), {

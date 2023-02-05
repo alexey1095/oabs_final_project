@@ -1,0 +1,42 @@
+{% extends "./base.html" %}
+
+{% block title %} List of Doctors {% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <p2> List of Doctors </p2>
+</div>
+
+
+    {% for doctor in doctors_list %}
+    <div class="row mt-3">
+
+        <div class="col">
+            Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}
+        </div>
+        
+        <div class="col">
+            <button type="button" class="btn btn-primary" onclick="onClick('{{ doctor.pk }}', this)">Book Appointment</button>
+        </div>
+    </div>
+    {% endfor %}
+
+
+
+
+<script>
+    var onClick = function(doctor_id,object) {
+        // object.innerHTML = value;
+        //https://stackoverflow.com/questions/73436370/django-button-redirecting-to-url-index
+        document.location.href = "{% url 'appointments_app:appointment_view' 999 %}".replace('999', doctor_id);
+            };
+
+            //Replace --> https://stackoverflow.com/questions/17832194/get-javascript-variables-value-in-django-url-template-tag
+
+
+
+
+</script>
+
+{% endblock %}

@@ -36,7 +36,7 @@ def login_view(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return HttpResponseRedirect(reverse("home_page"))
+                    return HttpResponseRedirect(reverse("users_app:home_page"))
                 else:
                     messages.error(request, "Sorry, your account is not active.")
 
@@ -55,7 +55,7 @@ def logout_view(request):
     logout(request)
     
     messages.success(request, "You are successfully logged out.")
-    return HttpResponseRedirect(reverse("login_page"))
+    return HttpResponseRedirect(reverse("users_app:login_page"))
 
 
 @login_required

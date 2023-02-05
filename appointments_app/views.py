@@ -1,19 +1,31 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseNotAllowed,  HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseNotAllowed,  HttpResponseBadRequest, HttpResponseNotFound
 from isoweek import Week
 from .calendar_html import WeekAppointmentCalendar
 from datetime import timedelta
 from datetime import datetime, time
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.db import IntegrityError
+
+from . import models
+
+from users_app.models import Doctor, Patient
 
 from . import forms
 
 # Create your views here.
 
+
+def doctor_list_view(request):
+    query_set = Doctor.objects.only('user')
+    return render(request, "list_doctors.html", context={'doctors_list': query_set})
+
+
 # @login_required
-
-
-def appointment_view(request):
+def appointment_view(request, doctor_id):
 
     # get the current week number
     week_number = datetime.now().isocalendar().week
@@ -22,9 +34,18 @@ def appointment_view(request):
     year = datetime.now().year
 
     # doctor_id
-    doctor_id = 1
+    # doctor_id = 1
 
-    doctor_name = "Dr. Luis"
+    try:
+        query_set = Doctor.objects.get(pk=doctor_id)
+        first_name = query_set.user.first_name
+        last_name = query_set.user.last_name
+        doctor_name = "Dr. " + first_name + " " + last_name
+    except Doctor.DoesNotExist:
+        return HttpResponseNotFound("Error: Doctor_id not found.")
+
+    except Exception:
+        return HttpResponseNotFound("Error: something wrong")
 
     # symptoms_form = forms.SymptomsForm()
     # hidden_fields_form = forms.DoctorAndAppointmentDateForm()
@@ -43,7 +64,7 @@ def appointment_view(request):
 def send_week_calendar(request, doctor_id, year, week_number):
     ''' # generate and send week calendar --this url is to be accessed via XMLHttpRequest from the week_calendar.html webpage '''
 
-    # week_number = 1
+    # Here the doctor_id needs to be checked to confirm that it exists
 
     # get the date for the start and end for the given week
     w = Week(year, week_number)
@@ -57,11 +78,14 @@ def send_week_calendar(request, doctor_id, year, week_number):
         opening_hours_till=time(7, 40, 0)
     )
 
-    user_id = request.user.id
+    #user_id = request.user.id
+
+    patient_id = Patient.objects.get(user=request.user).pk
 
     # calendar._generateOneDayColumn('17')
     week_html_table = weekAppointmentCal.generate(
-        user_id,
+        patient_id,
+        doctor_id,
         week_start_date,
         week_end_date
     )
@@ -72,40 +96,60 @@ def send_week_calendar(request, doctor_id, year, week_number):
 # @login_required
 def book_appointment(request):
 
-    # #if this is a POST request we need to process the form data
-
-    if request.method == 'POST':
-
-        symptoms = request.POST['symptoms']
-        doctor_id = request.POST['doctor_id']
-
-        try:
-            appointment_datetime = datetime.strptime(
-                request.POST['appointment_date_str'],
-                '%d-%m-%Y %H:%M')
-
-        except ValueError:
-            return HttpResponseBadRequest("Error : The appointment date is in wrong format.")
-
-        # create a form instance and populate it with data from the request:
-        # form = NameForm(request.POST)
-        # check whether it's valid:
-        # if form.is_valid():
-            # process the data in form.cleaned_data as required
-            # ...
-            # redirect to a new URL:
-
-        # return HttpResponseRedirect('/thanks/')
-        # appointment_datetime = datetime.strptime(appointment_date_str, '%d-%m-%Y %H:%M')
-        pass
-
-    # if a GET (or any other method) we'll create a blank form
-    else:
+    if request.method != 'POST':
         return HttpResponseNotAllowed(('POST',))
 
-    return
-    # return;  render(request, 'name.html', {'form': form})
+    form = forms.BookNewAppointment(request.POST)
 
+    if not form.is_valid():
+        messages.error(request, "Error: " + form.errors)
+        return HttpResponseRedirect(reverse("appointment_view"))
+
+    try:
+        patient = Patient.objects.get(user=request.user)
+        patient_id = patient.pk
+
+    except Patient.DoesNotExist:
+        return HttpResponseNotFound("Error: You are not registered as a patient.")
+
+    except Exception:
+        return HttpResponseNotFound("Error: something wrong")
+
+    try:
+        # new_appointment = models.Appointment(
+        #     doctor=form.cleaned_data['doctor'],
+        #     appointment_date = form.cleaned_data['appointment_date'],
+        #     patient = request.user,
+        #     symptoms= form.cleaned_data['symptoms']
+        # )
+
+        new_appointment = form.save(commit=False)
+        new_appointment.patient = patient
+        new_appointment.save()
+
+    except IntegrityError:
+        messages.error(request, "Error: DB Integrity error ")
+
+    doctor_id = request.POST['doctor']
+
+    return HttpResponseRedirect(reverse("appointments_app:appointment_view", args=(doctor_id,)))
+
+    # check if the time slot is availble for booking
+    # models.Appointment.objects.filter(
+    #     doctor=form.cleaned_data['doctor'],
+    #     appointment_date = form.cleaned_data['appointment_date'],)
+
+    #    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    # doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    # appointment_date = models.DateTimeField(blank=False)
+    # symptoms = models.CharField(max_length=256, blank=False)
+    # request_date = models.DateTimeField(blank=False, auto_now_add=True)
+    # appointment_status = models.ForeignKey(
+
+    # if a GET (or any other method) we'll create a blank form
+
+    # return
+    # return;  render(request, 'name.html', {'form': form})
 
 
 # class YourForm(forms.Form):

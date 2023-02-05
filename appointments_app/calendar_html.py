@@ -31,6 +31,8 @@ class WeekAppointmentCalendar:
         # id of the logged user
         self.user_id = None
 
+        self.doctor_id = None
+
     def _addCell(self, appointment_date_time, color):
         ''' Add html table cell with specified colour'''
 
@@ -83,6 +85,7 @@ class WeekAppointmentCalendar:
         queryset_dict = Appointment.objects.filter(
             Q(appointment_date__range=[
               day_of_month, day_of_month+timedelta(days=1)]),
+            Q(doctor=self.doctor_id),
             Q(appointment_status="Confirmed") | Q(
                 appointment_status="Requested")
         ).order_by('appointment_date').values()
@@ -110,7 +113,7 @@ class WeekAppointmentCalendar:
                 color = colours_dict[current_appointment_date_time]
             except KeyError:
                 # when the date is not in the dict it means the date/time is free for booking
-                color='green'
+                color = 'green'
 
             tbl += self._addCell(current_appointment_date_time, color)
 
@@ -148,10 +151,12 @@ class WeekAppointmentCalendar:
 
         return html_table
 
-    def generate(self, user_id, week_start_date, week_end_date):
+    def generate(self, user_id, doctor_id, week_start_date, week_end_date):
         ''' Generate html-week calendar'''
 
         self.user_id = user_id
+
+        self.doctor_id = doctor_id
 
         # self._get_colours(week_start_date, week_end_date)
 

@@ -3,6 +3,9 @@ from django.urls import path
 from . import views
 
 
+#app_name = 'appointments_app'
+app_name = 'users_app'
+
 urlpatterns = [
     
     # return login page

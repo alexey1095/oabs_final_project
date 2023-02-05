@@ -38,3 +38,14 @@ from appointments_app.models import Appointment
 #     class Meta:
 #         model = Appointment
 #         fields = ['doctor', 'appointment_date']
+
+
+
+
+class BookNewAppointment(ModelForm):
+
+    # appointment_date=forms.DateTimeField(input_formats=["%d-%m-%Y %H:%M"])
+
+    class Meta:
+        model = Appointment
+        fields = ['doctor', 'appointment_date', 'symptoms']
