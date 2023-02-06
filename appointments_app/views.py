@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.db import IntegrityError
+from django.db.models import Q
 
 from . import models
 
@@ -78,7 +79,7 @@ def send_week_calendar(request, doctor_id, year, week_number):
         opening_hours_till=time(7, 40, 0)
     )
 
-    #user_id = request.user.id
+    # user_id = request.user.id
 
     patient_id = Patient.objects.get(user=request.user).pk
 
@@ -164,4 +165,44 @@ def book_appointment(request):
 
 # @login_required
 def cancel_appointment(request):
-    return HttpResponseNotFound("Error: view is not defined.")
+
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(('POST',))
+
+    form = forms.CancelAppointment(request.POST)
+
+    if not form.is_valid():
+        messages.error(request, "Error: " + form.errors)
+        return HttpResponseRedirect(reverse("appointment_view"))
+
+    try:
+        patient = Patient.objects.get(user=request.user)
+        doctor = form.cleaned_data['doctor']
+        appointment_date = form.cleaned_data['appointment_date']
+        cancelled_status = models.AppointmentStatus.objects.get(
+            status='Cancelled_by_patient')
+
+        appointment = models.Appointment.objects.get(
+            Q(patient=patient),
+            Q(doctor=doctor),
+            Q(appointment_date=appointment_date),
+            Q(appointment_status="Confirmed") | Q(
+                appointment_status="Requested")
+        )
+
+        appointment.appointment_status = cancelled_status
+        appointment.save()
+
+    except models.AppointmentStatus.DoesNotExist:
+        return HttpResponseNotFound("Error: Appointment status does not exist.")
+
+    except models.Appointment.DoesNotExist:
+        return HttpResponseNotFound("Error: Appointment does not exist in the db")
+
+    except Patient.DoesNotExist:
+        return HttpResponseNotFound("Error: You are not registered as a patient.")
+
+    except Exception:
+        return HttpResponseNotFound("Error: something wrong")
+
+    return HttpResponseRedirect(reverse("appointments_app:appointment_view", args=(doctor.pk,)))

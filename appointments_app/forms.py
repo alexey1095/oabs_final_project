@@ -49,3 +49,10 @@ class BookNewAppointment(ModelForm):
     class Meta:
         model = Appointment
         fields = ['doctor', 'appointment_date', 'symptoms']
+
+
+class CancelAppointment(ModelForm):
+
+    class Meta:
+        model = Appointment
+        fields = ['doctor', 'appointment_date']    
