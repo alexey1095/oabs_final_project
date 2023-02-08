@@ -51,4 +51,11 @@ class BookedAppointmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model= Appointment
-        fields = "__all__"
+        fields = ["appointment_date", "doctor"]
+
+
+class NewAppointmentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model= Appointment
+        fields = ["appointment_date","symptoms", "patient", "doctor"]
