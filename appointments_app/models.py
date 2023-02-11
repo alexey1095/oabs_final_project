@@ -2,6 +2,9 @@ from django.db import models
 from users_app.models import Patient
 from users_app.models import Doctor
 from django.db.models import Q
+
+from django.utils import timezone
+
 # Create your models here.
 
 
@@ -17,7 +20,9 @@ class Appointment(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     appointment_date = models.DateTimeField(blank=False)
     symptoms = models.CharField(max_length=256, blank=False)
-    request_date = models.DateTimeField(blank=False, auto_now_add=True)
+
+    # https://github.com/FactoryBoy/factory_boy/issues/102
+    request_date = models.DateTimeField(default = timezone.now)#(default=timezone.now())#(blank=False, auto_now_add=True)
     appointment_status = models.ForeignKey(
         AppointmentStatus, on_delete=models.CASCADE, to_field='status', default='Requested')
 

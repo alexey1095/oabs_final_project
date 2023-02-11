@@ -11,7 +11,7 @@ urlpatterns = [
     # return a list of booked appointments for a given doctor, year and week number
     path('list_booked_appointments/<int:doctor_id>/<int:year>/<int:week_number>/',
          views.booked_appointments_list,
-         name='booked_appointments_list'),
+         name='list_booked_appointments'),
 
 
      # end point to book an apointment

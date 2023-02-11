@@ -1,10 +1,19 @@
 import factory
 
+import factory.fuzzy
+
+import django
+
+from datetime import datetime
+
 
 from django.contrib.auth.models import User
 from users_app.models import Patient
 from users_app.models import Doctor
 from users_app.models import DoctorType
+
+from appointments_app.models import Appointment
+from appointments_app.models import AppointmentStatus
 
 # https://factoryboy.readthedocs.io/en/stable/recipes.html
 
@@ -53,3 +62,34 @@ class PatientFactory(factory.django.DjangoModelFactory):
     home_address = factory.Sequence(lambda n: 'patient_home_address_%d' % n)
     home_phone = factory.Sequence(lambda n: 'patient_home_phone_%d' % n)
     
+
+class AppointmentStatusFactory(factory.django.DjangoModelFactory):
+    
+
+    class Meta:
+        model = AppointmentStatus
+        # https://joequery.me/code/factory-boy-handle-unique-constraints/
+        django_get_or_create = ('status',)
+
+    #status = factory.Sequence(lambda n: 'Requested_%d' % n)
+    status='Requested'
+
+
+
+
+
+class AppointmentFactory(factory.django.DjangoModelFactory):
+    patient = factory.SubFactory(PatientFactory)
+    doctor = factory.SubFactory(DoctorFactory)
+
+    # datetime(year, month, day, hour, minute, second, microsecond)
+    # b = datetime(2022, 12, 28, 23, 55, 59, 342380)
+    #appointment_date = factory.fuzzy.FuzzyNaiveDateTime(start_dt=datetime(2022, 12, 28, 23, 55, 59))
+    
+    
+    appointment_status = factory.SubFactory(AppointmentStatusFactory)
+    request_date = datetime.now() #factory.fuzzy.FuzzyNaiveDateTime(start_dt=datetime(2022, 12, 28, 23, 55, 59))
+    symptoms = factory.Sequence(lambda n: 'symptoms_%d' % n)
+
+    class Meta:
+        model = Appointment

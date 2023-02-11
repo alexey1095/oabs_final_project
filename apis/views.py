@@ -23,7 +23,7 @@ def doctor_list(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 def booked_appointments_list(request, doctor_id, year, week_number):
 
     # should be like this path('calendar/<int:doctor_id>/<int:year>/<int:week_number>/',
