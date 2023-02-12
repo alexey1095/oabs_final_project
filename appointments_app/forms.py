@@ -30,7 +30,7 @@ from appointments_app.models import Appointment
 #     doctor = forms.IntegerField(
 #         widget=forms.HiddenInput(),
 #         required = True)
-    
+
 #     appointment_date = forms.DateTimeField(
 #         widget=forms.HiddenInput(),
 #         required = True)
@@ -40,11 +40,8 @@ from appointments_app.models import Appointment
 #         fields = ['doctor', 'appointment_date']
 
 
-
-
 class BookNewAppointment(ModelForm):
-
-    # appointment_date=forms.DateTimeField(input_formats=["%d-%m-%Y %H:%M"])
+    ''' This form is for valdation data for booking appointment '''
 
     class Meta:
         model = Appointment
@@ -52,7 +49,8 @@ class BookNewAppointment(ModelForm):
 
 
 class CancelAppointment(ModelForm):
+    ''' This form is for valdation data for cancelling appointment '''
 
     class Meta:
         model = Appointment
-        fields = ['doctor', 'appointment_date']    
+        fields = ['doctor', 'appointment_date']

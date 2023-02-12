@@ -14,20 +14,27 @@ from datetime import datetime
 
 from . import models
 
-from users_app.models import Doctor, Patient
+from users_app.models import Patient
+from users_app.models import Doctor
 
 from . import forms
 
-# Create your views here.
 
-
+# @login_required(login_url='users_app:login_page')
 def doctor_list_view(request):
+    ''' Show list of doctors with buttons to book appointments'''
+
     query_set = Doctor.objects.only('user')
-    return render(request, "list_doctors.html", context={'doctors_list': query_set})
+    return render(
+        request, "list_doctors.html",
+        context={'doctors_list': query_set}
+    )
 
 
-# @login_required
+# @login_required(login_url='users_app:login_page')
 def appointment_view(request, doctor_id):
+    ''' return week calendar webpage for a given doctor for current 
+    week with next and previous week buttons'''
 
     # get the current week number
     week_number = datetime.now().isocalendar().week
@@ -35,36 +42,30 @@ def appointment_view(request, doctor_id):
     # get the current year
     year = datetime.now().year
 
-    # doctor_id
-    # doctor_id = 1
-
     try:
         query_set = Doctor.objects.get(pk=doctor_id)
         first_name = query_set.user.first_name
         last_name = query_set.user.last_name
         doctor_name = "Dr. " + first_name + " " + last_name
+    
     except Doctor.DoesNotExist:
         return HttpResponseNotFound("Error: Doctor_id not found.")
 
     except Exception:
         return HttpResponseNotFound("Error: something wrong")
 
-    # symptoms_form = forms.SymptomsForm()
-    # hidden_fields_form = forms.DoctorAndAppointmentDateForm()
-
     return render(request, 'week_calendar.html', context={
         "doctor_id": doctor_id,
         "doctor_name": doctor_name,
         "year": year,
         "week_number": week_number,
-        # "symptoms_form":symptoms_form,
-        # "hidden_fields_form":  hidden_fields_form
     })
 
 
-# @login_required
+# @login_required(login_url='users_app:login_page')
 def send_week_calendar(request, doctor_id, year, week_number):
-    ''' # generate and send week calendar --this url is to be accessed via XMLHttpRequest from the week_calendar.html webpage '''
+    ''' # generate and send week calendar --this url is to be accessed 
+    via XMLHttpRequest from the week_calendar.html webpage '''
 
     # Here the doctor_id needs to be checked to confirm that it exists
 
@@ -80,8 +81,6 @@ def send_week_calendar(request, doctor_id, year, week_number):
         opening_hours_till=time(7, 40, 0)
     )
 
-    # user_id = request.user.id
-
     patient_id = Patient.objects.get(user=request.user).pk
 
     # calendar._generateOneDayColumn('17')
@@ -91,11 +90,11 @@ def send_week_calendar(request, doctor_id, year, week_number):
         week_start_date,
         week_end_date
     )
-
+    
     return HttpResponse(week_html_table, content_type="text/html", status=200)
 
 
-# @login_required
+# @login_required(login_url='users_app:login_page')
 def book_appointment(request):
 
     if request.method != 'POST':
@@ -164,7 +163,7 @@ def book_appointment(request):
 #         cleaned_test = form.cleaned_data["test"]
 
 
-# @login_required
+# @login_required(login_url='users_app:login_page')
 def cancel_appointment(request):
 
     if request.method != 'POST':

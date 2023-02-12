@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
 
-    # Users application
+    # OABS applications
     'users_app.apps.UsersAppConfig',
     'appointments_app.apps.AppointmentsAppConfig',
     'apis.apps.ApisConfig',

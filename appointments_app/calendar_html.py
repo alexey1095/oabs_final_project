@@ -55,14 +55,14 @@ class WeekAppointmentCalendar:
         # atime is the object that contains only time (no date)
         atime = appointment_date_time.time()
 
-        # td += f'{atime.hour}:{atime.minute}' + "</td>" + "</tr>"
         td += f'{atime:%H}:{atime:%M}' + "</td>" + "</tr>"
 
         return td
 
     def _get_colour(self, queryset_list):
 
-        # Comment: queryset_list should contain only those appointments that have status of either 'Requested' or 'Confirmed'
+        # Comment: queryset_list should contain only those appointments 
+        # that have status of either 'Requested' or 'Confirmed'
 
         colours_dict = {}
 
@@ -94,7 +94,7 @@ class WeekAppointmentCalendar:
 
         tbl = "<td>"
 
-        tbl += f'{day_of_month:%d}'  # str(day_of_month)
+        tbl += f'{day_of_month:%d}'
 
         tbl += "<table class='table table-hover one-day-column'><tbody>"
 
@@ -105,11 +105,13 @@ class WeekAppointmentCalendar:
         closing_time = datetime.combine(
             day_of_month, self.opening_hours_till)
 
-        while current_appointment_date_time <= closing_time and (closing_time - current_appointment_date_time) >= self.appointment_duration_minutes:
+        while current_appointment_date_time <= closing_time and (
+                closing_time - current_appointment_date_time) >= self.appointment_duration_minutes:
 
             try:
 
-                # check if the current date has been already booked
+                # check if the current date has been already booked then the colour should be
+                # either red or blue
                 color = colours_dict[current_appointment_date_time]
             except KeyError:
                 # when the date is not in the dict it means the date/time is free for booking

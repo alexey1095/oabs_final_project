@@ -12,17 +12,7 @@ from django.contrib.auth.forms import AuthenticationForm
 #     password = forms.CharField(max_length=4096)
 
 
-
-
-
-
-
-
-
-
-
-
-#AR
+# AR
 
 # class LoginForm(forms.ModelForm):
 #     password = forms.CharField(widget=forms.PasswordInput())
@@ -36,8 +26,7 @@ from django.contrib.auth.forms import AuthenticationForm
 #             'password': None}
 
 
-
-# this potentially can be extended lated by 
+# this potentially can be extended lated by
 # confirm_login_allowed(user)
 
 # class LoginForm(AuthenticationForm):
@@ -53,8 +42,7 @@ from django.contrib.auth.forms import AuthenticationForm
 #     #         'password': None}
 
 
-
-
 class LoginForm(forms.Form):
+    ''' Login form used in the login view'''
     username = forms.CharField(max_length=150)
     password = forms.CharField(max_length=150, widget=forms.PasswordInput)

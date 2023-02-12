@@ -56,28 +56,13 @@
                 <div class="modal-body" id="modal_body">
                     No text
                 </div>
-
                 <!-- Textarea for entering symptoms -->
-                <div class="modal-body" id="modal_symptoms">
-                    
+                <div class="modal-body" id="modal_symptoms">                    
                 </div>
-
-
-
-
-
                 <div class="modal-footer" id="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close window</button>
-
-
-
-
-
-                    <input type="hidden" name="doctor" value={{ doctor_id }} />
-                    <!-- <input type="hidden" id="appointment_date_str" name="appointment_date_str" value="" /> -->
+                    <input type="hidden" name="doctor" value={{ doctor_id }} />                    
                     <button type="submit" class="btn btn-primary" id="modalFormSubmitButton">None</button>
-
-
                 </div>
             </div>
         </form>
@@ -119,23 +104,19 @@
             console.log("Blue cell");
             colour_cell = 'blue';
 
-
         }else{
             console.log("onCellClick - cell has no colour or colour is unknown.");
             return;
-        }
-            
+        }            
 
         // reading date and time from data-date attribute
         const data_date = cell.dataset.date;
-
 
         // get body element from the modal dialog and add text
         const mbody = document.getElementById('modal_body');
         mbody.innerHTML = '<h6>' + '{{ doctor_name }}' + '</h6>' + '<p>' + data_date + '</p>';
 
-
-        // Adding appointment date and time as a hidden input
+        // Adding appointment date and time as a hidden input to be sent to the server
         const modalfooter = document.getElementById('modal-footer');
         modalfooter.innerHTML += "<input type='hidden' id='appointment_date' name='appointment_date' value= " + "'" + data_date + "'" + " />";
 
@@ -143,59 +124,47 @@
         if (colour_cell == 'green'){
 
             // patient can book an appointment for the green timeslots 
-
             document.modalForm.action = "{% url 'appointments_app:book_appointment' %}";
             const submit_button = document.getElementById('modalFormSubmitButton');
             submit_button.innerText ='Book';
 
-            
+            // update modal window title
             const form_title = document.getElementById('modalFormTitle');
             form_title.innerText ='Book appointment?';
-
-
+            
+            // add symptom text box with a lable  
             const msymptoms = document.getElementById('modal_symptoms');
             msymptoms.innerHTML = "<h6>Enter your symptoms here: </h6>";
-
-            msymptoms.innerHTML += "<textarea id='symptoms' name='symptoms' rows='4' cols='44' required></textarea>"
-
-
-
-            
-                    
+            msymptoms.innerHTML += "<textarea id='symptoms' name='symptoms' rows='4' cols='44' required></textarea>"                              
 
         } else if (colour_cell == 'blue'){
 
-            // patient can cancel the appointment for the blue timeslots 
+            // patient can cancel the appointment for the blue timeslots
 
+            // update the url in the form to one that allows to cancel an appointment 
+            // and update modal window labels 
             document.modalForm.action = "{% url 'appointments_app:cancel_appointment' %}";
             const submit_button = document.getElementById('modalFormSubmitButton');
             submit_button.innerText ='Cancel Appointment';
-
             
+            //update title of modal window
             const form_title = document.getElementById('modalFormTitle');
             form_title.innerText ='Cancel appointment?';
-
-            
-            // // symptom box is not needed for cancellation so we keep it empty
-            // const msymptoms = document.getElementById('modal_symptoms');
-            // msymptoms.innerHTML = "";
-
-
 
         } else {
             console.log('onCellClick -- Error something wrong colour is not defined. ');
             return;
         }
 
-
-
         var myModal = new bootstrap.Modal(document.getElementById('staticBackdrop'), {
             keyboard: false
         });
 
+        // show modal window
         myModal.show();
     };
 
+    // this is called as a callback to assign event listeners for html-table cells
     function addEventListeners() {
 
         const day_columns = document.getElementsByClassName('table table-hover one-day-column');
@@ -224,7 +193,6 @@
                 mycallback();
             }
         };
-
 
         return true;
     };
@@ -336,9 +304,5 @@
     document.onload = update_calendar({{ doctor_id }}, {{ year }}, {{ week_number }}, addEventListeners);
 
 </script>
-
-
-
-
 
 {% endblock %}
