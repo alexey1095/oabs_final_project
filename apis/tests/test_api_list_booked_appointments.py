@@ -2,8 +2,15 @@ from rest_framework.test import APITestCase
 from django.urls import reverse
 import json
 
-from .models_factory import DoctorFactory, UserFactory, DoctorTypeFactory, PatientFactory, AppointmentFactory, AppointmentStatusFactory
-from .serializers import *
+from users_app.models_factory import PatientFactory
+from users_app.models_factory import DoctorFactory
+from users_app.models_factory import DoctorTypeFactory
+from users_app.models_factory import UserFactory
+
+
+from appointments_app.models_factory import AppointmentFactory
+
+from ..serializers import *
 
 from datetime import datetime
 
@@ -24,7 +31,7 @@ class ListBookedAppointmentsAPITest(APITestCase):
 
     '''
 
-    good_url = reverse('list_booked_appointments', kwargs={
+    good_url = reverse('apis:list_booked_appointments', kwargs={
                        'doctor_id': '1', 'year': '2022', 'week_number': '52'})
    
 

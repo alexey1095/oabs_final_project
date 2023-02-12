@@ -13,11 +13,18 @@
     <div class="row mt-3">
 
         <div class="col">
+
+        </div>
+
+        <div class="col">
             Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}
         </div>
         
         <div class="col">
             <button type="button" class="btn btn-primary" onclick="onClick('{{ doctor.pk }}', this)">Book Appointment</button>
+        </div>
+        <div class="col">
+            
         </div>
     </div>
     {% endfor %}

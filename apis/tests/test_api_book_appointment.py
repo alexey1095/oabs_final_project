@@ -1,14 +1,19 @@
 from rest_framework.test import APITestCase
 from django.urls import reverse
-import json
 
-from .models_factory import DoctorFactory, UserFactory, DoctorTypeFactory, PatientFactory
-from .serializers import *
+
+from users_app.models_factory import PatientFactory
+from users_app.models_factory import DoctorFactory
+from users_app.models_factory import DoctorTypeFactory
+from users_app.models_factory import UserFactory
+
+# from ..models_factory import DoctorFactory, UserFactory, DoctorTypeFactory, PatientFactory
+from ..serializers import *
 
 
 class BookAppointmentAPITest(APITestCase):
 
-    good_url = reverse('book_appointment')
+    good_url = reverse('apis:book_appointment')
 
     def setUp(self):
 
