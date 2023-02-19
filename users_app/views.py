@@ -17,6 +17,10 @@ from django.http import HttpResponseRedirect
 
 from django.http import HttpResponseNotFound
 
+from .models import Patient
+
+from appointments_app.models import Appointment
+
 
 from . import forms
 
@@ -66,10 +70,27 @@ def home_view(request):
 
     # user belongs to "patients" group
     if request.user.groups.filter(name='patients').exists():
-        return render(request, 'home_patient.html', {'user': request.user})
+
+        try:
+            patient = Patient.objects.get(user=request.user)
+
+        except Patient.DoesNotExist:
+            return HttpResponseNotFound("Error: Patient_id not found.")
+
+        # try:
+            # limit number to 20 records
+        appointments = Appointment.objects.filter(patient=patient)[:20]
+        # except Appointment.
+        #     return HttpResponseNotFound("Error: Patient_id not found.")
+
+        return render(request,
+                      'home_patient.html', 
+                      context={'user': request.user, 
+                               'appointments': appointments})
 
     # user belongs to "doctors" group
     elif request.user.groups.filter(name='doctors').exists():
+
         return render(request, 'home_doctor.html', {'user': request.user})
 
     # something wrong - no group assigned to user

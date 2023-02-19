@@ -4,11 +4,43 @@
 
 {% block content %}
 
+<div class="row">
+
 <p2>Home page - Patient </p2>
 
-{% if user.is_authenticated %}
- <p3> Hello {{ user.username }} </p3>
-{% endif %}
+</div>
 
+{% if user.is_authenticated %}
+<div class="row">
+<p3> Hello {{ user.username }} </p3>
+
+<p3> List of upcoming and previous appointments </p3>
+
+</div>
+
+
+<div class="row">
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Appointment Date</th>
+            <th scope="col">Doctor</th>
+            <th scope="col">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for appointment in appointments %}
+        <tr>            
+                <td>{{ appointment.appointment_date }}</th>
+                <td>Dr. {{ appointment.doctor.user.last_name }}</td>
+                <td>{{ appointment.appointment_status }}</td>           
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</div>
+
+{% endif %}
 
 {% endblock %}
