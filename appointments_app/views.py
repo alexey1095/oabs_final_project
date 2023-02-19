@@ -81,7 +81,27 @@ def send_week_calendar(request, doctor_id, year, week_number):
         opening_hours_till=time(7, 40, 0)
     )
 
-    patient_id = Patient.objects.get(user=request.user).pk
+    try:
+        # the user may be not found in the Patient table either because this patient does not exist (geniun error)
+        # or because the logged user is a doctor
+        patient_id = Patient.objects.get(user=request.user).pk
+    
+    except Patient.DoesNotExist:
+
+        try: 
+            # checking if the current user is a doctor?
+            Doctor.objects.get(user=request.user)
+            # when the logged-in user is a docotr we set the patient_id to -100 for the correct 
+            # color of cells determination in the week calendar
+            patient_id='-100'
+        except Doctor.DoesNotExist:
+            return HttpResponseNotFound("Error: User_id not found.")
+        
+        except Exception:
+            return HttpResponseNotFound("Error: something wrong")
+
+    
+
 
     # calendar._generateOneDayColumn('17')
     week_html_table = weekAppointmentCal.generate(
@@ -206,3 +226,57 @@ def cancel_appointment(request):
         return HttpResponseNotFound("Error: something wrong")
 
     return HttpResponseRedirect(reverse("appointments_app:appointment_view", args=(doctor.pk,)))
+
+
+
+
+
+# @login_required(login_url='users_app:login_page')
+def confirm_appointment(request):
+    ''' This is for doctors to confirm appointment'''
+
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(('POST',))
+    
+    try: 
+        # checking if the current user is a doctor - only doctors can confirm appointments
+        Doctor.objects.get(user=request.user)
+    except Doctor.DoesNotExist:
+        return HttpResponseNotFound("Error: current user is not a doctor -- appointment cannot be confirmed.")
+
+    form = forms.ConfirmAppointment(request.POST)
+
+    if not form.is_valid():
+        messages.error(request, "Error: " + f'{form.errors}')
+        return HttpResponseRedirect(reverse("users_app:home_page"))
+
+    try:
+        patient = form.cleaned_data['patient'] #Patient.objects.get(user=form.cleaned_data['patient'])
+        doctor = Doctor.objects.get(user=request.user)
+        appointment_date = form.cleaned_data['appointment_date']
+        confirmed_status = models.AppointmentStatus.objects.get(
+            status='Confirmed')
+
+        appointment = models.Appointment.objects.get(
+            Q(patient=patient),
+            Q(doctor=doctor),
+            Q(appointment_date=appointment_date),
+            Q(appointment_status="Requested")
+        )
+
+        appointment.appointment_status = confirmed_status
+        appointment.save()
+
+    except models.AppointmentStatus.DoesNotExist:
+        return HttpResponseNotFound("Error: Appointment status does not exist.")
+
+    except models.Appointment.DoesNotExist:
+        return HttpResponseNotFound("Error: Appointment does not exist in the db")
+
+    except Patient.DoesNotExist:
+        return HttpResponseNotFound("Error: You are not registered as a patient.")
+
+    except Exception:
+        return HttpResponseNotFound("Error: something wrong")
+
+    return HttpResponseRedirect(reverse("users_app:home_page"))

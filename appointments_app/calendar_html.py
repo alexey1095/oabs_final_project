@@ -5,6 +5,8 @@ from datetime import datetime, time
 from .models import Appointment
 from django.db.models import Q
 
+from users_app.models import Patient
+
 from isoweek import Week
 
 
@@ -33,7 +35,7 @@ class WeekAppointmentCalendar:
 
         self.doctor_id = None
 
-    def _addCell(self, appointment_date_time, color):
+    def _addCell_for_patient(self, appointment_date_time, color):
         ''' Add html table cell with specified colour'''
 
         td = "<tr>"
@@ -46,6 +48,10 @@ class WeekAppointmentCalendar:
             td += "<td class='table-danger'"
         elif color == "blue":
             td += "<td class='table-primary'"
+        elif color == "light_blue":
+            td += "<td class='table-info'"
+        elif color == "yellow":
+            td += "<td class='table-warning'"
         else:
             td += "<td"
 
@@ -59,21 +65,128 @@ class WeekAppointmentCalendar:
 
         return td
 
-    def _get_colour(self, queryset_list):
+    def _addCell_for_doctor(self, appointment_date_time, color, patient_id, symptoms):
+        ''' Add html table cell with specified colour'''
 
-        # Comment: queryset_list should contain only those appointments 
+        # we need to retreive the patient name only for those cells where patient name is not equal to NA
+        # Ibelieve NA can be only for those cells that are booked by doctors
+        patient_name = "NA"
+        if patient_id != "NA":
+            try:
+                patient = Patient.objects.get(pk=patient_id)
+                patient_name = patient.user.first_name + " " + patient.user.last_name
+            except Patient.DoesNotExist:
+                patient_name = "Error: patient not found"
+
+        td = "<tr>"
+
+        if color == "green":
+            td += "<td class='table-success'"
+        elif color == "grey":
+            td += "<td class='table-secondary'"
+        elif color == "red":
+            td += "<td class='table-danger'"
+        elif color == "blue":
+            td += "<td class='table-primary'"
+        elif color == "light_blue":
+            td += "<td class='table-info'"
+        elif color == "yellow":
+            td += "<td class='table-warning'"
+        else:
+            td += "<td"
+
+        td += " data-date=" + "'" + \
+            f'{appointment_date_time:%d-%m-%Y %H:%M}'+"'"
+
+        td += " data-patient_id=" + "'"+f'{patient_id}'+"'"
+
+        td += " data-patient_name=" + "'"+f'{patient_name}'+"'"
+
+        td += " data-symptoms=" + "'"+f'{symptoms}'+"'"+" >"
+
+        # atime is the object that contains only time (no date)
+        atime = appointment_date_time.time()
+
+        td += f'{atime:%H}:{atime:%M}' + "</td>" + "</tr>"
+
+        return td
+
+    def _get_colour_for_patient(self, queryset_list):
+
+        # Comment: queryset_list should contain only those appointments
         # that have status of either 'Requested' or 'Confirmed'
 
         colours_dict = {}
 
         for dic in queryset_list:
             if dic['patient_id'] == self.user_id:
-                # this is an appointment registered by this user so it should be blue
-                colours_dict[dic['appointment_date']] = 'blue'
+
+                if dic['appointment_status_id'] == 'Requested':
+                    # this is when appointment requested by a patient by not confirmed yet
+                    # colours_dict[dic['appointment_date']] = 'yellow'
+                    colours_dict[dic['appointment_date']] = {}
+                    colours_dict[dic['appointment_date']]['colour'] = 'yellow'
+                elif dic['appointment_status_id'] == 'Confirmed':
+                    # this is an appointment registered by this user so it should be blue
+                    # colours_dict[dic['appointment_date']] = 'blue'
+
+                    colours_dict[dic['appointment_date']] = {}
+                    colours_dict[dic['appointment_date']]['colour'] = 'blue'
+                else:
+                    # this is when something wrong - appointment has a status which is neither requested nor confirmed..
+
+                    colours_dict[dic['appointment_date']] = {}
+                    colours_dict[dic['appointment_date']]['colour'] = 'unknown'
 
             else:
                 # this is for appointments booked by someone else
-                colours_dict[dic['appointment_date']] = 'red'
+                colours_dict[dic['appointment_date']] = {}
+                colours_dict[dic['appointment_date']]['colour'] = 'red'
+
+        return colours_dict
+
+    def _get_colour_for_doctor(self, queryset_list):
+
+        # Comment: queryset_list should contain only those appointments
+        # that have status of either 'Requested' or 'Confirmed'
+
+        # the reason to have tow function
+
+        colours_dict = {}
+
+        for dic in queryset_list:
+            # if dic['patient_id'] == self.user_id:
+
+            if dic['appointment_status_id'] == 'Requested':
+                # this is when appointment requested by a patient by not confirmed yet
+                colours_dict[dic['appointment_date']] = {}
+                colours_dict[dic['appointment_date']]['colour'] = 'yellow'
+                colours_dict[dic['appointment_date']
+                             ]['patient_id'] = dic['patient_id']
+                colours_dict[dic['appointment_date']
+                             ]['symptoms'] = dic['symptoms']
+
+                # colours_dict[dic['symptoms']] = dic['symptoms']
+
+            elif dic['appointment_status_id'] == 'Confirmed':
+                # this is an appointment registered by this user so it should be blue
+                colours_dict[dic['appointment_date']] = {}
+                colours_dict[dic['appointment_date']]['colour'] = 'light_blue'
+                colours_dict[dic['appointment_date']
+                             ]['patient_id'] = dic['patient_id']
+                colours_dict[dic['appointment_date']
+                             ]['symptoms'] = dic['symptoms']
+
+            else:
+                # this is when something wrong - appointment has a status which is neither requested nor confirmed..
+                colours_dict[dic['appointment_date']] = {}
+                colours_dict[dic['appointment_date']]['colour'] = 'unknown'
+                colours_dict[dic['appointment_date']]['patient_id'] = 'unknown'
+                colours_dict[dic['appointment_date']]['symptoms'] = 'unknown'
+
+            # else:
+            #     # this is for appointments booked by someone else
+            #     colours_dict[dic['appointment_date']] = 'red'
 
         return colours_dict
 
@@ -90,7 +203,11 @@ class WeekAppointmentCalendar:
                 appointment_status="Requested")
         ).order_by('appointment_date').values()
 
-        colours_dict = self._get_colour(queryset_dict)
+        # user_id is set to -100 for doctor
+        if self.user_id != '-100':
+            colours_dict = self._get_colour_for_patient(queryset_dict)
+        else:
+            colours_dict = self._get_colour_for_doctor(queryset_dict)
 
         tbl = "<td>"
 
@@ -112,12 +229,27 @@ class WeekAppointmentCalendar:
 
                 # check if the current date has been already booked then the colour should be
                 # either red or blue
-                color = colours_dict[current_appointment_date_time]
+                color = colours_dict[current_appointment_date_time]['colour']
+
+                # the below two fields we need only for doctors
+                if self.user_id == '-100':
+                    patient_id = colours_dict[current_appointment_date_time]['patient_id']
+                    symptoms = colours_dict[current_appointment_date_time]['symptoms']
+
             except KeyError:
                 # when the date is not in the dict it means the date/time is free for booking
                 color = 'green'
 
-            tbl += self._addCell(current_appointment_date_time, color)
+                if self.user_id == '-100':
+                    patient_id = 'NA'
+                    symptoms = 'NA'
+
+            if self.user_id != '-100':
+                tbl += self._addCell_for_patient(
+                    current_appointment_date_time, color)
+            else:
+                tbl += self._addCell_for_doctor(
+                    current_appointment_date_time, color, patient_id, symptoms)
 
             current_appointment_date_time = current_appointment_date_time + \
                 self.appointment_duration_minutes

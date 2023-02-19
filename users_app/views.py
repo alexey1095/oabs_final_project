@@ -10,6 +10,8 @@ from django.urls import reverse
 
 from django.contrib import messages
 
+from datetime import datetime
+
 # remove this
 from django.http import HttpResponse
 
@@ -17,7 +19,7 @@ from django.http import HttpResponseRedirect
 
 from django.http import HttpResponseNotFound
 
-from .models import Patient
+from .models import Patient, Doctor
 
 from appointments_app.models import Appointment
 
@@ -79,7 +81,8 @@ def home_view(request):
 
         # try:
             # limit number to 20 records
-        appointments = Appointment.objects.filter(patient=patient)[:20]
+        # getting appointments for the patient, order them form newest to oldest and slicing the first 20
+        appointments = Appointment.objects.filter(patient=patient).order_by('-appointment_date')[:20]
         # except Appointment.
         #     return HttpResponseNotFound("Error: Patient_id not found.")
 
@@ -91,7 +94,41 @@ def home_view(request):
     # user belongs to "doctors" group
     elif request.user.groups.filter(name='doctors').exists():
 
-        return render(request, 'home_doctor.html', {'user': request.user})
+
+        ''' return week calendar webpage for a given doctor for current 
+        week with next and previous week buttons'''
+
+        # get the current week number
+        week_number = datetime.now().isocalendar().week
+
+        # get the current year
+        year = datetime.now().year
+
+        doctor = request.user
+
+        try:
+            query_set = Doctor.objects.get(user=doctor)
+            first_name = query_set.user.first_name
+            last_name = query_set.user.last_name
+            doctor_name = "Dr. " + first_name + " " + last_name
+        
+        except Doctor.DoesNotExist:
+            return HttpResponseNotFound("Error: Doctor_id not found.")
+
+        except Exception:
+            return HttpResponseNotFound("Error: something wrong")
+
+        return render(request, 'home_doctor.html', context={
+            "doctor_id": query_set.pk,
+            "doctor_name": doctor_name,
+            "year": year,
+            "week_number": week_number,
+        })
+
+
+
+
+        # return render(request, 'home_doctor.html', {'user': request.user})
 
     # something wrong - no group assigned to user
     else:

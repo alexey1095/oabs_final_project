@@ -54,3 +54,12 @@ class CancelAppointment(ModelForm):
     class Meta:
         model = Appointment
         fields = ['doctor', 'appointment_date']
+
+
+class ConfirmAppointment(ModelForm):
+    ''' This form is for data validation for cancelling appointment '''
+
+    class Meta:
+        model = Appointment
+        fields = ['patient', 'appointment_date']
+
