@@ -22,6 +22,11 @@ urlpatterns = [
          views.book_appointment,
          name='book_appointment'),
 
+      # end point to confirm an apointment
+    path('confirm_appointment/<int:appointment_id>/',
+         views.confirm_appointment,
+         name='confirm_appointment'),
+
     # API schema
     path('schema/',
          get_schema_view(

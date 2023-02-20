@@ -272,6 +272,9 @@ def confirm_appointment(request):
 
     except models.Appointment.DoesNotExist:
         return HttpResponseNotFound("Error: Appointment does not exist in the db")
+    
+    except models.Doctor.DoesNotExist:
+        return HttpResponseNotFound("Error: Doctor does not exist in the db")
 
     except Patient.DoesNotExist:
         return HttpResponseNotFound("Error: You are not registered as a patient.")

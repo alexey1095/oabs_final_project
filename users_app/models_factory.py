@@ -15,11 +15,16 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = User
+        exclude = ('passwd',)
 
     username = factory.Sequence(lambda n: 'username%d' % n)
     first_name = factory.Sequence(lambda n: 'first_name_%d' % n)
     last_name = factory.Sequence(lambda n: 'last_name_%d' % n)
-    password = factory.Sequence(lambda n: 'password%d' % n)
+
+    # https://www.delenamalan.co.za/til/2022-03-01-model-with-password-factory-boy.html
+    #password = factory.Sequence(lambda n: 'password%d' % n)
+    passwd = factory.PostGenerationMethodCall(
+        'set_password','fnfh!djdf8JJDSlfkd.sofidold73')
 
 
 class DoctorTypeFactory(factory.django.DjangoModelFactory):

@@ -13,7 +13,9 @@ from users_app.models_factory import DoctorFactory
 class AppointmentStatusFactory(factory.django.DjangoModelFactory):
     ''' Create model factory for AppointmentStatus model'''
 
-    status = 'Requested'
+    #status = 'Requested'
+
+    status = factory.Iterator(['Requested','Confirmed'])
 
     class Meta:
         model = AppointmentStatus
@@ -25,11 +27,18 @@ class AppointmentStatusFactory(factory.django.DjangoModelFactory):
 class AppointmentFactory(factory.django.DjangoModelFactory):
     ''' Create model factory for Appointment model'''
 
+    # AppointmentStatusFactory.create() #(status='Requested')
+    # AppointmentStatusFactory.create()
+    # # AppointmentStatusFactory(status='Confirmed')
+
     patient = factory.SubFactory(PatientFactory)
     doctor = factory.SubFactory(DoctorFactory)
-    appointment_status = factory.SubFactory(AppointmentStatusFactory)
+    appointment_status = factory.SubFactory(AppointmentStatusFactory, status='Requested')
     request_date = datetime.now()
     symptoms = factory.Sequence(lambda n: 'symptoms_%d' % n)
 
     class Meta:
         model = Appointment
+
+
+

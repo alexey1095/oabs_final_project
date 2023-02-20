@@ -9,7 +9,9 @@ from users_app.models import Doctor
 from apis.serializers import DoctorSerializer
 from apis.serializers import BookedAppointmentSerializer
 from apis.serializers import NewAppointmentSerializer
+from apis.serializers import ConfirmAppointmentSerializer
 from appointments_app.models import Appointment
+from appointments_app.models import AppointmentStatus
 
 
 @api_view(['GET'])
@@ -50,6 +52,36 @@ def book_appointment(request):
         serializer = NewAppointmentSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['PATCH'])
+def confirm_appointment(request, appointment_id):
+    ''' confirm appointment'''
+    if request.method == 'PATCH':
+
+        try:
+            appointment = Appointment.objects.get(pk=appointment_id)
+
+        except Appointment.DoesNotExist:
+            return Response("Appointment does not exist",
+                        status=status.HTTP_400_BAD_REQUEST)
+        
+
+        if appointment.doctor.user != request.user:
+            return Response("Wrong doctor. The appointment confirmation can only be made by the doctor who owns the appointment. ",
+                        status=status.HTTP_400_BAD_REQUEST)
+
+
+        #status_pk = AppointmentStatus.objects.get(status='Confirmed').pk
+        serializer = ConfirmAppointmentSerializer(appointment, data={'appointment_status':'Confirmed'}, partial=True)
+        if serializer.is_valid():
+
+            serializer.save()
+            
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED)
         return Response(serializer.errors,
