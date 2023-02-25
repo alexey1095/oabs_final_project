@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="keywords" content="appointment, medical, online, booking, surgery">
+    <meta name="description" content="OABS Final Project">
+    <meta name="author" content="AR">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+        crossorigin="anonymous"></script>
+
+    <title>Registration</title>
+</head>
+
+<body>
+
+    <div class="container">
+
+        {% if messages %}
+
+        {% for message in messages %}
+
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        {% elif message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        {% endif %}
+
+        {% endfor %}
+
+        {% endif %}
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">AOBS</a>
+                <a href="{% url 'users_app:login_page' %}">Login</a>
+            </div>
+        </nav>
+
+        <h3>Registration page</h3>
+
+        <div class="row">
+
+            <div class="col">
+            </div>
+
+            <div class="col">
+
+                <form method="post">
+                    
+                    {% csrf_token %}
+
+                    {% for field in registration_form %}
+                    <p>
+                    <div class="form-group">
+                        {{ field.label_tag }} <br>
+                        {{ field }}
+                    </div>
+                    </p>
+                    {% endfor %}
+                    <button type="submit">Sign up</button>
+
+                </form>
+            </div>
+
+            <div class="col">
+            </div>
+        </div>
+
+        <footer>
+            <div class="text-center p-3 mt-5 bg-light">
+                © 2023 Copyright
+            </div>
+        </footer>
+    
+    </div>
+
+</body>
+</html>

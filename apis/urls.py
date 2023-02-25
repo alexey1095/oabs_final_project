@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework.schemas import get_schema_view
 from apis import views
 
-app_name='apis'
+app_name = 'apis'
 
 urlpatterns = [
 
@@ -22,10 +22,15 @@ urlpatterns = [
          views.book_appointment,
          name='book_appointment'),
 
-      # end point to confirm an apointment
+    # end point to confirm an apointment
     path('confirm_appointment/<int:appointment_id>/',
          views.confirm_appointment,
          name='confirm_appointment'),
+
+    # end point to confirm an apointment
+    path('register_patient',
+         views.register_patient,
+         name='register_patient'),
 
     # API schema
     path('schema/',

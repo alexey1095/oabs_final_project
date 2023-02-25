@@ -1,25 +1,25 @@
 {% extends "./base.html" %}
 
-{% block title %} Calendar_test {% endblock %}
+
+
+{% block title %} Home page - Doctor {% endblock %}
+
+{% block nav %} 
+{% include "./nav_doctor.html" %}
+{% endblock %}
 
 {% block content %}
 
-<!-- {% if user.is_authenticated %} -->
-
-<!-- {% endif %} -->
-
-<h2>Home page - Doctor </h2>
-
 {% if user.is_authenticated %}
- <h3> Hello Doctor {{ user.username }} </h3>
+
+
+
 
 
 <div class="row">
-    <!-- <h4> {{ doctor_name }} </h4> -->
-
     <nav class="navbar navbar-light">
         <div class="container-fluid">
-            <span class="navbar-brand h1">{{ doctor_name }}</span>
+            <span class="navbar-brand h1">Hello {{ doctor_name }}</span>
         </div>
     </nav>
 </div>

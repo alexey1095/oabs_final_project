@@ -1,0 +1,42 @@
+{% extends "./base.html" %}
+
+{% block title %} Login {% endblock %}
+
+{% block nav %}
+{% include "./nav_registration.html" %}
+{% endblock %}
+
+{% block content %}
+
+   
+<h3>Days off</h3>
+
+<div class="row">
+
+    <div class="col">
+    </div>
+
+    <div class="col">
+
+        <form method="post">
+            
+            {% csrf_token %}
+
+            {% for field in days_off_form %}
+            <p>
+            <div class="form-group">
+                {{ field.label_tag }} <br>
+                {{ field }}
+            </div>
+            </p>
+            {% endfor %}
+            <button type="submit">Sign up</button>
+
+        </form>
+    </div>
+
+    <div class="col">
+    </div>
+</div>
+
+{% endblock %}

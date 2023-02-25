@@ -1,0 +1,102 @@
+{% extends "./base.html" %}
+
+{% block title %} Request Days off {% endblock %}
+
+{% block nav %}
+{% include "./nav_doctor.html" %}
+{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+
+{% for message in messages %}
+
+{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+{% elif message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+{% endif %}
+
+{% endfor %}
+
+{% endif %}
+
+<script>
+    function checkform() {
+
+        let form = document.getElementById("date_time_form");
+
+        let date_from=document.getElementById("date_time_from").value;
+        let date_till=document.getElementById("date_time_till").value;
+        if (date_from == "" || date_from == "") {
+            alert("Please enter the date From and To");
+            return false;
+        }
+
+        date_from = Date.parse(date_from);
+        date_till = Date.parse(date_till);
+
+        if (date_from > date_till){
+           alert("The datetime From should be less than datetime To");
+           return false;
+        }            
+        
+        form.submit();
+        
+    };
+
+</script>
+
+<h3>Days off</h3>
+
+<div class="row">
+
+    <div class="col">
+    </div>
+
+    <div class="col">
+
+        <form id ="date_time_form" method="post">
+
+            {% csrf_token %}
+
+            <p>
+            <div class="form-group">
+                <label for="date_time_from">From: </label> <br>
+                <input type="datetime-local" id="date_time_from" name="date_time_from" required />
+            </div>
+            </p>
+
+            <p>
+            <div class="form-group">
+                <label for="date_time_till">To: </label> <br>
+                <input type="datetime-local" id="date_time_till" name="date_time_till" required />
+            </div>
+            </p>
+
+
+
+            <button type="submit" class="btn btn-primary" onclick="return checkform();">Submit</button>
+
+        </form>
+    </div>
+
+    <div class="col">
+    </div>
+</div>
+
+
+
+
+{% endblock %}

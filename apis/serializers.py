@@ -2,8 +2,10 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from appointments_app.models import Appointment
 from users_app.models import Doctor
+from users_app.models import Patient
 from users_app.models import DoctorType
 from appointments_app.models import AppointmentStatus
+from django.contrib.auth.models import Group
 
 
 
@@ -55,6 +57,48 @@ class ConfirmAppointmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointment
         fields= '__all__'
+
+
+
+class RegisterNewUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['username', 'password','first_name', 'last_name']
+
+class RegisterNewPatientSerializer(serializers.ModelSerializer):
+
+
+    user = RegisterNewUserSerializer()
+
+    class Meta:
+        model = Patient
+        fields= ['user','dob', 'home_address', 'home_phone']
+
+
+    def create(self, validated_data):
+        #user = User(validated_data['user'])
+        user = User.objects.create_user(
+            username= validated_data['user']['username'],
+            password = validated_data['user']['password'],
+            first_name = validated_data['user']['first_name'],
+            last_name=validated_data['user']['last_name'])
+        #user.save()
+        
+        # adding a new user to a 'patients' group
+        patients_group = Group.objects.get(name='patients') 
+        user.groups.add(patients_group)
+        user.save()
+
+        patient=Patient(
+            user=user, 
+            dob = validated_data['dob'],
+            home_address = validated_data['home_address'],
+            home_phone = validated_data['home_phone'])
+        patient.save()
+        return patient
+
+
         #fields = ["appointment_date", "patient"]
         #fields = ["appointment_status"]
 

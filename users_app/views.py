@@ -23,10 +23,50 @@ from .models import Patient, Doctor
 
 from appointments_app.models import Appointment
 
+from django.contrib.auth.models import Group
+
 
 from . import forms
 
 # Create your views here.
+
+def registration_view(request):
+    ''' Patient registration view'''
+
+    if request.method == 'POST':
+        form = forms.RegistrationForm(request.POST)
+        if form.is_valid():
+            try:
+                user = form.save()
+                
+                # adding a new user to a 'patients' group
+                patients_group = Group.objects.get(name='patients') 
+                user.groups.add(patients_group)
+
+                user.save()
+
+                # adding new user to patient table
+                patient = Patient(
+                    user=user,
+                    dob = form.cleaned_data['dob'],
+                    home_address = form.cleaned_data['home_address'],
+                    home_phone = form.cleaned_data['home_phone'] )
+                
+                patient.save()
+
+                
+            except Exception:                                
+                    messages.error(
+                         request, "Sorry, there was a problem during registration process. ")
+                    return HttpResponseRedirect(reverse("users_app:registration_page"))
+                    
+            messages.success(request, "Your registration has been successful.")
+            return HttpResponseRedirect(reverse("users_app:login_page"))
+
+    else:
+        form = forms.RegistrationForm()
+
+    return render(request, 'registration.html', {'registration_form': form})
 
 
 def login_view(request):

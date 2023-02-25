@@ -63,3 +63,11 @@ class ConfirmAppointment(ModelForm):
         model = Appointment
         fields = ['patient', 'appointment_date']
 
+
+
+class RequestDaysOffForm(forms.Form):
+    ''' Days off form'''
+    date_time_from = forms.DateTimeField()
+    date_time_till = forms.DateTimeField() #(attrs={'type': 'datetime-local'})
+    
+    

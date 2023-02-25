@@ -28,4 +28,6 @@ urlpatterns = [
 
      # cancel an appointment
     path('confirm/', views.confirm_appointment, name='confirm_appointment'),
+
+    path('request_daysoff/', views.request_daysoff, name='request_daysoff'),
 ]

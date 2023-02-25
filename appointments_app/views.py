@@ -283,3 +283,33 @@ def confirm_appointment(request):
         return HttpResponseNotFound("Error: something wrong")
 
     return HttpResponseRedirect(reverse("users_app:home_page"))
+
+
+
+def request_daysoff(request):
+    ''' This is for doctors to request days off'''
+
+    if request.method == 'POST':
+       
+    
+        try: 
+            # checking if the current user is a doctor - only doctors can confirm appointments
+            Doctor.objects.get(user=request.user)
+        except Doctor.DoesNotExist:
+            return HttpResponseNotFound("Error: current user is not a doctor -- access denied.")
+
+        form = forms.RequestDaysOffForm(request.POST)
+
+        if not form.is_valid():
+            messages.error(request, "Error: " + f'{form.errors}')
+            return HttpResponseRedirect(reverse("appointments_app:request_daysoff"))
+        
+    else:
+        form = forms.RequestDaysOffForm()
+
+    return render(request, 'request_daysoff.html', {'daysoff_form': form})
+
+
+    
+
+

@@ -1,45 +1,82 @@
 {% extends "./base.html" %}
 
-{% block title %} Login {% endblock %}
+
+
+{% block title %} Home page - Patient {% endblock %}
+
+{% block nav %} 
+{% include "./nav_patient.html" %}
+{% endblock %}
+
 
 {% block content %}
 
-<div class="row">
-
-<p2>Home page - Patient </p2>
-
-</div>
-
 {% if user.is_authenticated %}
-<div class="row">
-<p3> Hello {{ user.username }} </p3>
-
-<p3> List of upcoming and previous appointments </p3>
-
-</div>
 
 
 <div class="row">
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">Appointment Date</th>
-            <th scope="col">Doctor</th>
-            <th scope="col">Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for appointment in appointments %}
-        <tr>            
-                <td>{{ appointment.appointment_date }}</th>
-                <td>Dr. {{ appointment.doctor.user.last_name }}</td>
-                <td>{{ appointment.appointment_status }}</td>           
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+
+    
+    <!-- <p class="h1">Home page - Patient </p> -->
+    <!-- <h4>Hello {{ user.first_name }} {{ user.last_name }} </h4> -->
+
+            <!-- As a heading -->
+<nav class="navbar navbar-light ">
+    <div class="container-fluid">
+         <p class="navbar-brand mb-1 h1">Hello {{ user.username }} </p>
+    </div>
+  </nav>
 
 </div>
+
+<div class="row">
+
+    <div class="col">
+
+        <!-- As a heading -->
+        <div class="col">
+            <nav class="navbar navbar-light ">
+                <div class="container-fluid">
+                  <span class="navbar-brand mb-1 ">List of upcoming and previous appointments.</span>
+                </div>
+              </nav>
+            
+        </div>
+
+        <!-- <h6> List of upcoming and previous appointments </h6> <br> -->
+
+        <table class="table table-success table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Appointment Date</th>
+                    <th scope="col">Doctor</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments %}
+                <tr>
+                    <td>{{ appointment.appointment_date }}</th>
+                    <td>Dr. {{ appointment.doctor.user.last_name }}</td>
+                    <td>{{ appointment.appointment_status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="col">
+        <nav class="navbar navbar-light ">
+            <div class="container-fluid">
+              <span class="navbar-brand mb-1 ">Wish list</span>
+            </div>
+          </nav>
+        
+    </div>
+</div>
+
+
 
 {% endif %}
 

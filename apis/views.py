@@ -10,6 +10,7 @@ from apis.serializers import DoctorSerializer
 from apis.serializers import BookedAppointmentSerializer
 from apis.serializers import NewAppointmentSerializer
 from apis.serializers import ConfirmAppointmentSerializer
+from apis.serializers import RegisterNewPatientSerializer
 from appointments_app.models import Appointment
 from appointments_app.models import AppointmentStatus
 
@@ -82,6 +83,20 @@ def confirm_appointment(request, appointment_id):
 
             serializer.save()
             
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['POST'])
+def register_patient(request):
+    ''' register patient '''
+    if request.method == 'POST':        
+        serializer = RegisterNewPatientSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED)
         return Response(serializer.errors,
