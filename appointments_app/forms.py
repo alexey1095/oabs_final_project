@@ -2,6 +2,7 @@ from django import forms
 from django.forms import ModelForm
 from appointments_app.models import Appointment
 from appointments_app.models import DaysOff
+from appointments_app.models import WishList
 
 
 # class AppointmentForm1(ModelForm):
@@ -80,4 +81,11 @@ class RequestDaysOffForm(ModelForm):
         model = DaysOff
         fields = ['date_from', 'date_till']
 
-    
+
+
+class AddToWishList(ModelForm):
+    ''' This form is for valdation data for booking appointment '''
+
+    class Meta:
+        model = WishList
+        fields = ['doctor', 'appointment_date', 'symptoms']

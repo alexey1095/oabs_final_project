@@ -4,7 +4,7 @@
 
 {% block title %} Home page - Patient {% endblock %}
 
-{% block nav %} 
+{% block nav %}
 {% include "./nav_patient.html" %}
 {% endblock %}
 
@@ -16,16 +16,16 @@
 
 <div class="row">
 
-    
+
     <!-- <p class="h1">Home page - Patient </p> -->
     <!-- <h4>Hello {{ user.first_name }} {{ user.last_name }} </h4> -->
 
-            <!-- As a heading -->
-<nav class="navbar navbar-light ">
-    <div class="container-fluid">
-         <p class="navbar-brand mb-1 h1">Hello {{ user.username }} </p>
-    </div>
-  </nav>
+    <!-- As a heading -->
+    <nav class="navbar navbar-light ">
+        <div class="container-fluid">
+            <p class="navbar-brand mb-1 h1">Hello {{ user.username }} </p>
+        </div>
+    </nav>
 
 </div>
 
@@ -37,10 +37,10 @@
         <div class="col">
             <nav class="navbar navbar-light ">
                 <div class="container-fluid">
-                  <span class="navbar-brand mb-1 ">List of upcoming and previous appointments.</span>
+                    <span class="navbar-brand mb-1 ">List of upcoming and previous appointments.</span>
                 </div>
-              </nav>
-            
+            </nav>
+
         </div>
 
         <!-- <h6> List of upcoming and previous appointments </h6> <br> -->
@@ -65,16 +65,67 @@
         </table>
     </div>
 
-
+    <!-- Wish List -->
     <div class="col">
         <nav class="navbar navbar-light ">
             <div class="container-fluid">
-              <span class="navbar-brand mb-1 ">Wish list</span>
+                <span class="navbar-brand mb-1 ">Wish list</span>
             </div>
-          </nav>
-        
+        </nav>
+
+
+        <table class="table table-success table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Appointment Date</th>
+                    <th scope="col">Doctor</th>
+                    <th scope="col">Status</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in wishlist %}
+                <tr>
+                    <td>{{ entry.appointment_date }}</td>
+                    <td>Dr. {{ entry.doctor.user.last_name }}</td>
+                    <td>{{ entry.wishlist_status }}</td>
+
+                    {% if entry.wishlist_status.status == "Available" %}
+
+                    <td>
+                        <form action="{% url 'appointments_app:book_appointment' %}" method="post">
+                            {% csrf_token %}
+
+                            <input type="hidden" name="doctor" value="{{ entry.doctor.pk }}" />
+                            <input type="hidden" name="appointment_date" value="{{ entry.appointment_date|date:'c' }}" />
+                            <input type="hidden" name="symptoms" value='{{ entry.symptoms }}' />
+
+                            <button type="submit" class="btn btn-primary">Book</button>
+
+                        </form>
+
+                    </td>
+
+
+
+
+                    {% else %}
+                    <td></td>
+                    {% endif %}
+
+
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+
 </div>
+</div>
+
+
+
 
 
 

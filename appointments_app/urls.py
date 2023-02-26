@@ -32,4 +32,7 @@ urlpatterns = [
     path('request_daysoff/', views.request_daysoff, name='request_daysoff'),
 
     path('cancel_daysoff/<int:pk>/', views.cancel_daysoff, name='cancel_daysoff'),
+
+     # book an appointment
+    path('add_to_wishlist/', views.add_to_wishlist, name='add_to_wishlist'),
 ]

@@ -232,17 +232,22 @@ class WeekAppointmentCalendar:
                 daysoff = DaysOff.objects.filter(
                     doctor=self.doctor_id,
                     date_from__lte=current_appointment_date_time.date(), 
-                    date_till__gte=current_appointment_date_time.date())
+                    date_till__gte=current_appointment_date_time.date(),
+                    daysoff_status='Booked')
                 
                 if daysoff:
                     color = 'grey'
+                    
+                    if self.user_id == '-100':
+                        patient_id = 'NA'
+                        symptoms = 'NA'
                 else:                                                    
                     # check if the current date has been already booked then the colour should be
                     # either red or blue
                     color = colours_dict[current_appointment_date_time]['colour']
 
                 # the below two fields we need only for doctors
-                if self.user_id == '-100':
+                if self.user_id == '-100' and not daysoff:
                     patient_id = colours_dict[current_appointment_date_time]['patient_id']
                     symptoms = colours_dict[current_appointment_date_time]['symptoms']
 

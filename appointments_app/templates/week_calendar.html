@@ -12,6 +12,34 @@
 
 <!-- {% endif %} -->
 
+
+{% if messages %}
+
+{% for message in messages %}
+
+{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+{% elif message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+{% endif %}
+
+{% endfor %}
+
+{% endif %}
+
+
+
+
 <div class="row">
     <!-- <h4> {{ doctor_name }} </h4> -->
 
@@ -101,12 +129,16 @@
             console.log("Gray cell");
             return;
         } else if (cell.className == 'table-danger') {
-            console.log("Red cell - no booking possible");
-            return;
+            console.log("Red cell - no booking possible, however it is possible to add this timeslot into wish list");
+            colour_cell = 'red';
         // Blue cell
         } else if (cell.className =='table-primary'){
             console.log("Blue cell");
             colour_cell = 'blue';
+
+        } else if (cell.className =='table-warning'){
+            console.log("yellow cell");
+            colour_cell = 'yellow';
 
         }else{
             console.log("onCellClick - cell has no colour or colour is unknown.");
@@ -141,7 +173,7 @@
             msymptoms.innerHTML = "<h6>Enter your symptoms here: </h6>";
             msymptoms.innerHTML += "<textarea id='symptoms' name='symptoms' rows='4' cols='44' required></textarea>"                              
 
-        } else if (colour_cell == 'blue'){
+        } else if (colour_cell == 'blue' || colour_cell == 'yellow'){
 
             // patient can cancel the appointment for the blue timeslots
 
@@ -154,6 +186,22 @@
             //update title of modal window
             const form_title = document.getElementById('modalFormTitle');
             form_title.innerText ='Cancel appointment?';
+
+        } else if (colour_cell == 'red'){
+
+            // patient can add this timeslot into wish list
+            document.modalForm.action = "{% url 'appointments_app:add_to_wishlist' %}";
+            const submit_button = document.getElementById('modalFormSubmitButton');
+            submit_button.innerText ='Add to Wish List';
+
+            // update modal window title
+            const form_title = document.getElementById('modalFormTitle');
+            form_title.innerText ='Add to wish list?';
+            
+            // add symptom text box with a lable  
+            const msymptoms = document.getElementById('modal_symptoms');
+            msymptoms.innerHTML = "<h6>Enter your symptoms here: </h6>";
+            msymptoms.innerHTML += "<textarea id='symptoms' name='symptoms' rows='4' cols='44' required></textarea>"           
 
         } else {
             console.log('onCellClick -- Error something wrong colour is not defined. ');

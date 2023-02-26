@@ -22,6 +22,7 @@ from django.http import HttpResponseNotFound
 from .models import Patient, Doctor
 
 from appointments_app.models import Appointment
+from appointments_app.models import WishList
 
 from django.contrib.auth.models import Group
 
@@ -115,21 +116,31 @@ def home_view(request):
 
         try:
             patient = Patient.objects.get(user=request.user)
+            appointments = Appointment.objects.filter(patient=patient).order_by('-appointment_date')[:20]
+            wishlist = WishList.objects.filter(patient=patient).order_by('-appointment_date')[:20]
+
 
         except Patient.DoesNotExist:
             return HttpResponseNotFound("Error: Patient_id not found.")
+        
+        # except Appointment.DoesNotExist:
+        #     return HttpResponseNotFound("Error: Appointment not found.")
+        
+        except Exception:
+            return HttpResponseNotFound("Error: DB error .")
 
         # try:
             # limit number to 20 records
         # getting appointments for the patient, order them form newest to oldest and slicing the first 20
-        appointments = Appointment.objects.filter(patient=patient).order_by('-appointment_date')[:20]
+        #appointments = Appointment.objects.filter(patient=patient).order_by('-appointment_date')[:20]
         # except Appointment.
         #     return HttpResponseNotFound("Error: Patient_id not found.")
 
         return render(request,
                       'home_patient.html', 
                       context={'user': request.user, 
-                               'appointments': appointments})
+                               'appointments': appointments,
+                               'wishlist': wishlist})
 
     # user belongs to "doctors" group
     elif request.user.groups.filter(name='doctors').exists():

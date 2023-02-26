@@ -148,7 +148,38 @@ def book_appointment(request):
     except IntegrityError:
         messages.error(request, "Error: DB Integrity error ")
 
-    doctor_id = request.POST['doctor']
+    #doctor_id = request.POST['doctor']
+    doctor_id = form.cleaned_data['doctor'].pk
+    appointment_date = form.cleaned_data['appointment_date']
+
+
+    # now when a new appointment is booked we need to check whether 
+    # this appointment was in the the waiting list for the current user
+    # and possibly other users
+    wishlist = models.WishList.objects.filter(
+            Q(doctor=doctor_id),
+            Q(appointment_date=appointment_date),
+            Q(wishlist_status="Available"))
+        
+    
+    waiting_status = models.WishListStatus.objects.get(status="Waiting")
+    booked_status = models.WishListStatus.objects.get(status="Booked")
+        
+        
+    # set 'waiting' status for all the rest patients who might have 
+    # this time slot in their wish lists
+    for entry in wishlist:
+        if entry.patient.user == request.user:
+            # this is the case when the current user had this timeslot in their 
+            # wish list and they have just booked it
+            entry.wishlist_status= booked_status
+        else:
+            # for all the rest patient set to 'waiting ' again
+            entry.wishlist_status= waiting_status
+        entry.save()
+
+
+
 
     return HttpResponseRedirect(reverse("appointments_app:appointment_view", args=(doctor_id,)))
 
@@ -209,6 +240,22 @@ def cancel_appointment(request):
 
         appointment.appointment_status = cancelled_status
         appointment.save()
+
+
+        # now we ned to check if the cancelled appointment was added to 
+        # wish list by someone else
+
+        wishlist = models.WishList.objects.filter(
+            Q(doctor=doctor),
+            Q(appointment_date=appointment_date),
+            Q(wishlist_status="Waiting"))
+        
+        available_status = models.WishListStatus.objects.get(status="Available")
+        
+        
+        for entry in wishlist:
+            entry.wishlist_status= available_status
+            entry.save()
 
     except models.AppointmentStatus.DoesNotExist:
         return HttpResponseNotFound("Error: Appointment status does not exist.")
@@ -352,7 +399,7 @@ def cancel_daysoff(request, pk):
         # who is requesting the daysoff cancel       
 
         if daysoff.doctor != doctor:
-            return HttpResponseNotFound("Error: the daysoff can be cancelled obly by the same doctor who ownes the daysoff")
+            return HttpResponseNotFound("Error: the daysoff can be cancelled only by the same doctor who ownes the daysoff")
         
         daysoff.daysoff_status = status_cancelled
         daysoff.save()
@@ -364,13 +411,55 @@ def cancel_daysoff(request, pk):
         return HttpResponseNotFound("Error: the requested daysoff status does not exist")
     
     except models.DaysOff.DoesNotExist:
-        return HttpResponseNotFound("Error: the requested daysoff period does not exist")
-
-
-    
-
-    
-
-  
+        return HttpResponseNotFound("Error: the requested daysoff period does not exist")  
 
     return HttpResponseRedirect(reverse("appointments_app:request_daysoff"))
+
+
+
+def add_to_wishlist(request):
+    
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(('POST',))
+
+    form = forms.AddToWishList(request.POST)
+
+    if not form.is_valid():
+        messages.error(request, "Error: " + form.errors)
+        return HttpResponseRedirect(reverse("appointment_view"))
+
+    try:
+        patient = Patient.objects.get(user=request.user)
+        #patient_id = patient.pk
+
+    except Patient.DoesNotExist:
+        return HttpResponseNotFound("Error: You are not registered as a patient.")
+
+    except Exception:
+        return HttpResponseNotFound("Error: something wrong")
+
+    try:
+        # new_appointment = models.Appointment(
+        #     doctor=form.cleaned_data['doctor'],
+        #     appointment_date = form.cleaned_data['appointment_date'],
+        #     patient = request.user,
+        #     symptoms= form.cleaned_data['symptoms']
+        # )
+
+        new_wishlist_record = form.save(commit=False)
+        new_wishlist_record.patient = patient
+        new_wishlist_record.save()
+
+    except IntegrityError:
+        messages.error(request, "Error: DB Integrity error ")
+
+    except Exception:
+        messages.error(request, "Error: DB error ")
+
+
+    doctor_id = request.POST['doctor']
+
+    messages.success(
+            request, "The appointment has been added to the wish list - Yous will be notified should this timeslot become availble..")
+
+    return HttpResponseRedirect(reverse("appointments_app:appointment_view", args=(doctor_id,)))
