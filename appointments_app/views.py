@@ -47,7 +47,7 @@ def appointment_view(request, doctor_id):
         first_name = query_set.user.first_name
         last_name = query_set.user.last_name
         doctor_name = "Dr. " + first_name + " " + last_name
-    
+
     except Doctor.DoesNotExist:
         return HttpResponseNotFound("Error: Doctor_id not found.")
 
@@ -85,23 +85,20 @@ def send_week_calendar(request, doctor_id, year, week_number):
         # the user may be not found in the Patient table either because this patient does not exist (geniun error)
         # or because the logged user is a doctor
         patient_id = Patient.objects.get(user=request.user).pk
-    
+
     except Patient.DoesNotExist:
 
-        try: 
+        try:
             # checking if the current user is a doctor?
             Doctor.objects.get(user=request.user)
-            # when the logged-in user is a docotr we set the patient_id to -100 for the correct 
+            # when the logged-in user is a docotr we set the patient_id to -100 for the correct
             # color of cells determination in the week calendar
-            patient_id='-100'
+            patient_id = '-100'
         except Doctor.DoesNotExist:
             return HttpResponseNotFound("Error: User_id not found.")
-        
+
         except Exception:
             return HttpResponseNotFound("Error: something wrong")
-
-    
-
 
     # calendar._generateOneDayColumn('17')
     week_html_table = weekAppointmentCal.generate(
@@ -110,7 +107,7 @@ def send_week_calendar(request, doctor_id, year, week_number):
         week_start_date,
         week_end_date
     )
-    
+
     return HttpResponse(week_html_table, content_type="text/html", status=200)
 
 
@@ -228,17 +225,14 @@ def cancel_appointment(request):
     return HttpResponseRedirect(reverse("appointments_app:appointment_view", args=(doctor.pk,)))
 
 
-
-
-
 # @login_required(login_url='users_app:login_page')
 def confirm_appointment(request):
     ''' This is for doctors to confirm appointment'''
 
     if request.method != 'POST':
         return HttpResponseNotAllowed(('POST',))
-    
-    try: 
+
+    try:
         # checking if the current user is a doctor - only doctors can confirm appointments
         Doctor.objects.get(user=request.user)
     except Doctor.DoesNotExist:
@@ -251,7 +245,8 @@ def confirm_appointment(request):
         return HttpResponseRedirect(reverse("users_app:home_page"))
 
     try:
-        patient = form.cleaned_data['patient'] #Patient.objects.get(user=form.cleaned_data['patient'])
+        # Patient.objects.get(user=form.cleaned_data['patient'])
+        patient = form.cleaned_data['patient']
         doctor = Doctor.objects.get(user=request.user)
         appointment_date = form.cleaned_data['appointment_date']
         confirmed_status = models.AppointmentStatus.objects.get(
@@ -272,7 +267,7 @@ def confirm_appointment(request):
 
     except models.Appointment.DoesNotExist:
         return HttpResponseNotFound("Error: Appointment does not exist in the db")
-    
+
     except models.Doctor.DoesNotExist:
         return HttpResponseNotFound("Error: Doctor does not exist in the db")
 
@@ -285,31 +280,97 @@ def confirm_appointment(request):
     return HttpResponseRedirect(reverse("users_app:home_page"))
 
 
-
 def request_daysoff(request):
     ''' This is for doctors to request days off'''
 
+    try:
+        # checking if the current user is a doctor - only doctors can confirm appointments
+        doctor = Doctor.objects.get(user=request.user)
+    except Doctor.DoesNotExist:
+        return HttpResponseNotFound("Error: current user is not a doctor -- access denied.")
+
     if request.method == 'POST':
-       
-    
-        try: 
-            # checking if the current user is a doctor - only doctors can confirm appointments
-            Doctor.objects.get(user=request.user)
-        except Doctor.DoesNotExist:
-            return HttpResponseNotFound("Error: current user is not a doctor -- access denied.")
 
         form = forms.RequestDaysOffForm(request.POST)
 
         if not form.is_valid():
             messages.error(request, "Error: " + f'{form.errors}')
             return HttpResponseRedirect(reverse("appointments_app:request_daysoff"))
-        
+
+        date_from = form.cleaned_data['date_from']
+        date_till = form.cleaned_data['date_till']
+
+        if date_from >= date_till:
+            messages.error(
+                request, "Error: the date From should be less than date To")
+            return HttpResponseRedirect(reverse("users_app:home_page"))
+
+        try:
+            new_daysoff = form.save(commit=False)
+            new_daysoff.doctor = doctor
+            new_daysoff.save()
+
+        except IntegrityError:
+            messages.error(
+                request, "Error: DB Integrity error - unable to create a daysoff record.")
+            return HttpResponseRedirect(reverse("appointments_app:request_daysoff"))
+
+        except Exception:
+            messages.error(
+                request, "Error: db internal error - unable to create a daysoff record.")
+            return HttpResponseRedirect(reverse("appointments_app:request_daysoff"))
+
+        messages.success(
+            request, "Your days off have been successfully booked .")
+        return HttpResponseRedirect(reverse("appointments_app:request_daysoff"))
+
     else:
         form = forms.RequestDaysOffForm()
 
-    return render(request, 'request_daysoff.html', {'daysoff_form': form})
+    daysoff_list = models.DaysOff.objects.filter(
+        doctor=doctor).order_by('-date_from')[:20]
+
+    return render(request, 'request_daysoff.html', {'daysoff_form': form,
+                                                    'daysoff_list': daysoff_list})
+
+
+def cancel_daysoff(request, pk):
+
+    if request.method != 'GET':
+        return HttpResponseNotAllowed(('GET',))
+    
+
+     # checking if the current user is a doctor - only doctors can confirm appointments
+    try:
+        doctor = Doctor.objects.get(user=request.user)
+
+        status_cancelled = models.DaysOffStatus.objects.get(status='Cancelled')
+
+        daysoff = models.DaysOff.objects.get(pk=pk)
+
+        # check if the doctor who booked a daysoff is the same doctor 
+        # who is requesting the daysoff cancel       
+
+        if daysoff.doctor != doctor:
+            return HttpResponseNotFound("Error: the daysoff can be cancelled obly by the same doctor who ownes the daysoff")
+        
+        daysoff.daysoff_status = status_cancelled
+        daysoff.save()
+
+    except Doctor.DoesNotExist:
+        return HttpResponseNotFound("Error: current user is not a doctor -- access denied.")
+    
+    except models.DaysOffStatus.DoesNotExist:
+        return HttpResponseNotFound("Error: the requested daysoff status does not exist")
+    
+    except models.DaysOff.DoesNotExist:
+        return HttpResponseNotFound("Error: the requested daysoff period does not exist")
 
 
     
 
+    
 
+  
+
+    return HttpResponseRedirect(reverse("appointments_app:request_daysoff"))

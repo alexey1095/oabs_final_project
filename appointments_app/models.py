@@ -35,3 +35,30 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f'{self.appointment_date} {self.doctor}'
+
+class DaysOffStatus(models.Model):
+    status = models.CharField(max_length=256, blank=False, unique=True)
+
+    def __str__(self):
+        return f'{self.status}'
+
+
+class DaysOff(models.Model):    
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    date_from = models.DateField(blank=False)
+    date_till = models.DateField(blank=False)
+    daysoff_status = models.ForeignKey(
+        DaysOffStatus, on_delete=models.CASCADE, to_field='status', default='Booked')
+    comment = models.CharField(max_length=256, blank=True)
+
+    # https://github.com/FactoryBoy/factory_boy/issues/102
+    request_date = models.DateTimeField(default = timezone.now)#(default=timezone.now())#(blank=False, auto_now_add=True)
+    
+    class Meta:
+
+        constraints = [models.UniqueConstraint(
+            fields=['doctor', 'date_from', 'date_till'], 
+            name='unique_daysoff_record')]
+
+    def __str__(self):
+        return f'{self.date_from} - {self.date_till} - {self.doctor}'

@@ -33,12 +33,14 @@
 {% endif %}
 
 <script>
+
     function checkform() {
 
-        let form = document.getElementById("date_time_form");
+        let form = document.getElementById("date_form");
 
-        let date_from=document.getElementById("date_time_from").value;
-        let date_till=document.getElementById("date_time_till").value;
+        let date_from = document.getElementById("date_from").value;
+        let date_till = document.getElementById("date_till").value;
+
         if (date_from == "" || date_from == "") {
             alert("Please enter the date From and To");
             return false;
@@ -47,41 +49,92 @@
         date_from = Date.parse(date_from);
         date_till = Date.parse(date_till);
 
-        if (date_from > date_till){
-           alert("The datetime From should be less than datetime To");
-           return false;
-        }            
-        
+        if (date_from > date_till) {
+            alert("The datetime From should be less than datetime To");
+            return false;
+        }
+
+        // this is temeporarly commented 
+        // if (date_from < Date.now()){
+        //     alert("Days off booking is only availble for future dates");
+        //     return false;
+        // }       
+
         form.submit();
-        
+
     };
 
 </script>
 
-<h3>Days off</h3>
 
-<div class="row">
+<script>
+    var onClick = function (daysoff_id, object) {
 
-    <div class="col">
-    </div>
+        if (confirm("Are sure you want to cancell your days off?")) {
+            //https://stackoverflow.com/questions/73436370/django-button-redirecting-to-url-index
+        document.location.href = "{% url 'appointments_app:cancel_daysoff' 999 %}".replace('999', daysoff_id);
+        } else {
+            return false;
+        }
+        // object.innerHTML = value;
+        
+    };
 
-    <div class="col">
+            //Replace --> https://stackoverflow.com/questions/17832194/get-javascript-variables-value-in-django-url-template-tag
 
-        <form id ="date_time_form" method="post">
+
+
+
+</script>
+
+<!-- <h3>Days off</h3> -->
+
+<div class="row mt-3">
+    <nav class="navbar navbar-light ">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-1 h1">Days off</span>
+        </div>
+    </nav>
+
+</div>
+
+<div class="row mt-3">
+
+
+    <div class="col  justify-content-center text-center">
+
+
+
+
+        <div class="row mt-3">
+            <nav class="navbar navbar-light ">
+                <div class="container-fluid justify-content-center text-center">
+                    <span class="navbar-brand mb-1 ">Book Days off</span>
+                </div>
+            </nav>
+
+        </div>
+
+
+
+
+
+
+        <form id="date_time_form" method="post">
 
             {% csrf_token %}
 
             <p>
             <div class="form-group">
-                <label for="date_time_from">From: </label> <br>
-                <input type="datetime-local" id="date_time_from" name="date_time_from" required />
+                <label for="date_from">From: </label> <br>
+                <input type="date" id="date_from" name="date_from" required />
             </div>
             </p>
 
             <p>
             <div class="form-group">
-                <label for="date_time_till">To: </label> <br>
-                <input type="datetime-local" id="date_time_till" name="date_time_till" required />
+                <label for="date_till">To: </label> <br>
+                <input type="date" id="date_till" name="date_till" required />
             </div>
             </p>
 
@@ -92,7 +145,45 @@
         </form>
     </div>
 
-    <div class="col">
+    <div class="col justify-content-center text-center">
+
+        <nav class="navbar navbar-light ">
+            <div class="container-fluid justify-content-center text-center">
+                <span class="navbar-brand mb-1 ">List of Booked Days off</span>
+            </div>
+        </nav>
+
+        <table class="table">
+
+            <thead>
+                <tr>
+                    <th scope="col">From</th>
+                    <th scope="col">TO</th>
+                    <th scope="col">status</th>
+                    <th scope="col"></th>
+
+                </tr>
+            </thead>
+
+
+            <tbody>
+                {% for dayoff in daysoff_list %}
+                <tr>
+                    <td>{{ dayoff.date_from }}</td>
+                    <td>{{ dayoff.date_till }}</td>
+                    <td>{{ dayoff.daysoff_status }}</td>
+
+                    <td>
+                        <button type="button" class="btn btn-primary"
+                            onclick="onClick('{{ dayoff.pk }}', this)">Cancel</button>
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+
     </div>
 </div>
 

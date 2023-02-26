@@ -5,6 +5,7 @@ import factory.fuzzy
 
 from appointments_app.models import Appointment
 from appointments_app.models import AppointmentStatus
+from appointments_app.models import DaysOffStatus
 
 from users_app.models_factory import PatientFactory
 from users_app.models_factory import DoctorFactory
@@ -42,3 +43,15 @@ class AppointmentFactory(factory.django.DjangoModelFactory):
 
 
 
+class DaysOffStatusFactory(factory.django.DjangoModelFactory):
+    ''' Create model factory for DaysOffStatus model'''
+
+    
+
+    #status = factory.Iterator(['Booked',''])
+
+    class Meta:
+        model = DaysOffStatus
+        # the django_get_or_create methos is added here to avoid the UNIQUE constraint break
+        # as discussed here https://joequery.me/code/factory-boy-handle-unique-constraints/
+        django_get_or_create = ('status',)

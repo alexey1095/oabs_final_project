@@ -3,6 +3,7 @@ from datetime import timedelta
 from datetime import datetime, time
 # from django.db import models
 from .models import Appointment
+from .models import DaysOff
 from django.db.models import Q
 
 from users_app.models import Patient
@@ -227,9 +228,18 @@ class WeekAppointmentCalendar:
 
             try:
 
-                # check if the current date has been already booked then the colour should be
-                # either red or blue
-                color = colours_dict[current_appointment_date_time]['colour']
+                # checking whether the 'current_appointment_date_time' is booked as day off for the doctor 
+                daysoff = DaysOff.objects.filter(
+                    doctor=self.doctor_id,
+                    date_from__lte=current_appointment_date_time.date(), 
+                    date_till__gte=current_appointment_date_time.date())
+                
+                if daysoff:
+                    color = 'grey'
+                else:                                                    
+                    # check if the current date has been already booked then the colour should be
+                    # either red or blue
+                    color = colours_dict[current_appointment_date_time]['colour']
 
                 # the below two fields we need only for doctors
                 if self.user_id == '-100':
@@ -243,6 +253,9 @@ class WeekAppointmentCalendar:
                 if self.user_id == '-100':
                     patient_id = 'NA'
                     symptoms = 'NA'
+
+            except Exception:
+                pass
 
             if self.user_id != '-100':
                 tbl += self._addCell_for_patient(

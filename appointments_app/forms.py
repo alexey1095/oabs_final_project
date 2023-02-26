@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from appointments_app.models import Appointment
+from appointments_app.models import DaysOff
 
 
 # class AppointmentForm1(ModelForm):
@@ -65,9 +66,18 @@ class ConfirmAppointment(ModelForm):
 
 
 
-class RequestDaysOffForm(forms.Form):
-    ''' Days off form'''
-    date_time_from = forms.DateTimeField()
-    date_time_till = forms.DateTimeField() #(attrs={'type': 'datetime-local'})
+# class RequestDaysOffForm(forms.Form):
+#     ''' Days off form'''
+#     date_time_from = forms.DateTimeField()
+#     date_time_till = forms.DateTimeField() #(attrs={'type': 'datetime-local'})
     
+class RequestDaysOffForm(ModelForm):
+    ''' Days off form'''
+    # date_time_from = forms.DateTimeField()
+    # date_time_till = forms.DateTimeField() #(attrs={'type': 'datetime-local'})
+
+    class Meta:
+        model = DaysOff
+        fields = ['date_from', 'date_till']
+
     
