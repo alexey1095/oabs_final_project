@@ -29,4 +29,8 @@ class TestDoctorListView(TestCase):
 
     def test_doctorListViewReturnsCorrectNumberDoctors(self):
         self.assertEqual(len(self.response.context['doctors_list']), 2)
+
+    def test_templateContent(self):
+        self.assertContains(self.response, "<p2> List of Doctors </p2>")
+        self.assertContains(self.response,"onClick = function(doctor_id,object)")
        

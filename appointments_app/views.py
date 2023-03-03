@@ -125,7 +125,7 @@ def book_appointment(request):
 
     try:
         patient = Patient.objects.get(user=request.user)
-        patient_id = patient.pk
+        #patient_id = patient.pk
 
     except Patient.DoesNotExist:
         return HttpResponseNotFound("Error: You are not registered as a patient.")
@@ -134,13 +134,6 @@ def book_appointment(request):
         return HttpResponseNotFound("Error: something wrong")
 
     try:
-        # new_appointment = models.Appointment(
-        #     doctor=form.cleaned_data['doctor'],
-        #     appointment_date = form.cleaned_data['appointment_date'],
-        #     patient = request.user,
-        #     symptoms= form.cleaned_data['symptoms']
-        # )
-
         new_appointment = form.save(commit=False)
         new_appointment.patient = patient
         new_appointment.save()
@@ -347,7 +340,8 @@ def request_daysoff(request):
         date_from = form.cleaned_data['date_from']
         date_till = form.cleaned_data['date_till']
 
-        if date_from >= date_till:
+        #if date_from >= date_till:
+        if date_from > date_till:
             messages.error(
                 request, "Error: the date From should be less than date To")
             return HttpResponseRedirect(reverse("users_app:home_page"))
@@ -427,6 +421,8 @@ def add_to_wishlist(request):
     if not form.is_valid():
         messages.error(request, "Error: " + form.errors)
         return HttpResponseRedirect(reverse("appointment_view"))
+    
+    
 
     try:
         patient = Patient.objects.get(user=request.user)
@@ -439,13 +435,6 @@ def add_to_wishlist(request):
         return HttpResponseNotFound("Error: something wrong")
 
     try:
-        # new_appointment = models.Appointment(
-        #     doctor=form.cleaned_data['doctor'],
-        #     appointment_date = form.cleaned_data['appointment_date'],
-        #     patient = request.user,
-        #     symptoms= form.cleaned_data['symptoms']
-        # )
-
         new_wishlist_record = form.save(commit=False)
         new_wishlist_record.patient = patient
         new_wishlist_record.save()
