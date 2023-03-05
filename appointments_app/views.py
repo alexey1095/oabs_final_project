@@ -78,7 +78,7 @@ def send_week_calendar(request, doctor_id, year, week_number):
 
         appointment_duration_minutes=timedelta(hours=0, minutes=20, seconds=0),
         opening_hours_from=time(7, 0, 0),
-        opening_hours_till=time(7, 40, 0)
+        opening_hours_till=time(17, 0, 0)
     )
 
     try:

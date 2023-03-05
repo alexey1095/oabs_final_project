@@ -48,6 +48,7 @@ class DoctorFactory(factory.django.DjangoModelFactory):
     dob = "2020-03-17"
     home_address = factory.Sequence(lambda n: 'home_address_%d' % n)
     home_phone = factory.Sequence(lambda n: 'home_phone_%d' % n)
+    #user.group = 'doctors'
 
 
 class PatientFactory(factory.django.DjangoModelFactory):

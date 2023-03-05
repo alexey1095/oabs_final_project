@@ -7,6 +7,7 @@ from users_app.models import DoctorType
 from appointments_app.models import AppointmentStatus
 from django.contrib.auth.models import Group
 
+from django.contrib.auth import authenticate
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
@@ -97,6 +98,47 @@ class RegisterNewPatientSerializer(serializers.ModelSerializer):
             home_phone = validated_data['home_phone'])
         patient.save()
         return patient
+    
+
+
+    
+
+class LoginSerializer(serializers.Serializer):
+
+    username = serializers.CharField(max_length=150, write_only=True)
+    password = serializers.CharField(max_length=150, write_only=True)
+    
+
+    class Meta:
+        # model = User
+        fields = ['username', 'password']
+        #read_only_fields = ('username', 'password')
+
+
+    def validate(self,data):
+
+        cleaned_data = super().validate(data)
+
+        username = cleaned_data.get("username")
+        password = cleaned_data.get("password")
+
+        if username and password:
+           
+            user = authenticate(request=self.context.get('request'),
+                                username=username, password=password)
+            if not user:               
+                raise serializers.ValidationError('Access denied: not valid username or password.', code='authorization')
+        else:
+            
+            raise serializers.ValidationError("Either username or password is missing", code='authorization')
+        # We have a valid user, put it in the serializer's validated_data.
+        # It will be used in the view.
+        data['user'] = user
+        return data
+
+
+        # username = data.get('username')
+        # password = data.get('password')
 
 
         #fields = ["appointment_date", "patient"]

@@ -9,10 +9,14 @@ from users_app.models import Doctor
 from apis.serializers import DoctorSerializer
 from apis.serializers import BookedAppointmentSerializer
 from apis.serializers import NewAppointmentSerializer
+from apis.serializers import LoginSerializer
 from apis.serializers import ConfirmAppointmentSerializer
 from apis.serializers import RegisterNewPatientSerializer
 from appointments_app.models import Appointment
 from appointments_app.models import AppointmentStatus
+
+from django.contrib.auth import authenticate
+from django.contrib.auth import login
 
 
 @api_view(['GET'])
@@ -89,7 +93,6 @@ def confirm_appointment(request, appointment_id):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-
 @api_view(['POST'])
 def register_patient(request):
     ''' register patient '''
@@ -101,3 +104,31 @@ def register_patient(request):
                             status=status.HTTP_201_CREATED)
         return Response(serializer.errors,
                         status=status.HTTP_400_BAD_REQUEST)
+
+
+
+# @api_view(['POST'])
+# def login(request):
+#     ''' login '''
+#     if request.method == 'POST':        
+#         serializer = LoginSerializer(data=request.data, context={"request": request })
+#         if serializer.is_valid():
+
+#             # user = authenticate(
+#             #     username=serializer.cleaned_data['username'],
+#             #     password=serializer.cleaned_data['password'],
+#             # )
+
+#             user = serializer.validated_data['user']
+
+#             if user is not None:
+#                 if user.is_active:
+#                     login(request, user)
+#                     return Response(serializer.data,
+#                             status=status.HTTP_202_ACCEPTED)
+#             return Response(serializer.data,
+#                             status=status.HTTP_406_NOT_ACCEPTABLE)
+                            
+            
+#         return Response(serializer.errors,
+#                         status=status.HTTP_400_BAD_REQUEST)

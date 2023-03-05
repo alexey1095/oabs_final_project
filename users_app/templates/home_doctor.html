@@ -4,7 +4,7 @@
 
 {% block title %} Home page - Doctor {% endblock %}
 
-{% block nav %} 
+{% block nav %}
 {% include "./nav_doctor.html" %}
 {% endblock %}
 
@@ -63,11 +63,11 @@
                     No text
                 </div>
                 <!-- Textarea for entering symptoms -->
-                <div class="modal-body" id="modal_symptoms">                    
+                <div class="modal-body" id="modal_symptoms">
                 </div>
                 <div class="modal-footer" id="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close window</button>
-                    <input type="hidden" name="doctor" value={{ doctor_id }} />                    
+                    <input type="hidden" name="doctor" value={{ doctor_id }} />
                     <button type="submit" class="btn btn-primary" id="modalFormSubmitButton">None</button>
                 </div>
             </div>
@@ -99,31 +99,26 @@
         if (cell.className == 'table-success') {
             console.log("Green cell");
             colour_cell = 'green';
+
         } else if (cell.className == 'table-secondary') {
             console.log("Gray cell");
             return;
         } else if (cell.className == 'table-danger') {
             console.log("Red cell - no booking possible");
             return;
-        
-
-       
 
         } else if (cell.className == 'table-warning') {
-                console.log("Yellow cell - not confirmed appointment");
-                colour_cell = 'yellow';
-               
+            console.log("Yellow cell - not confirmed appointment");
+            colour_cell = 'yellow';
 
-
-
-        } else if (cell.className =='table-info'){
-            console.log("Light Blue cell");
+        } else if (cell.className == 'table-info') {
+            console.log("Light Blue cell - confirmed");
             colour_cell = 'light_blue';
 
-        }else{
+        } else {
             console.log("onCellClick - cell has no colour or colour is unknown.");
             return;
-        }            
+        }
 
         // reading date and time from data-date attribute
         const data_date = cell.dataset.date;
@@ -135,7 +130,7 @@
         const data_patient_id = cell.dataset.patient_id;
 
         //reading symptoms from data-symptoms
-        const data_symptoms= cell.dataset.symptoms;
+        const data_symptoms = cell.dataset.symptoms;
 
         // get body element from the modal dialog and add text
         const mbody = document.getElementById('modal_body');
@@ -149,23 +144,23 @@
         modalfooter.innerHTML += "<input type='hidden' id='patient_id' name='patient' value= " + "'" + data_patient_id + "'" + " />";
 
         // depending on the cell colour we define the behaviour of the modal window
-        if (colour_cell == 'yellow'){
+        if (colour_cell == 'yellow') {
 
             // patient can book an appointment for the green timeslots 
             document.modalForm.action = "{% url 'appointments_app:confirm_appointment' %}";
             const submit_button = document.getElementById('modalFormSubmitButton');
-            submit_button.innerText ='Confirm';
+            submit_button.innerText = 'Confirm';
 
             // update modal window title
             const form_title = document.getElementById('modalFormTitle');
-            form_title.innerText ='Confirm appointment?';
-            
+            form_title.innerText = 'Confirm appointment?';
+
             // add symptom text box with a lable  
             const msymptoms = document.getElementById('modal_symptoms');
             msymptoms.innerHTML = "<h6>Symptoms: </h6>";
-            msymptoms.innerHTML += "<textarea readonly id='symptoms' name='symptoms' rows='4' cols='44' >"+ data_symptoms+"</textarea>"                              
+            msymptoms.innerHTML += "<textarea readonly id='symptoms' name='symptoms' rows='4' cols='44' >" + data_symptoms + "</textarea>"
 
-        } else if (colour_cell == 'blue'){
+        } else if (colour_cell == 'blue') {
 
             // patient can cancel the appointment for the blue timeslots
 
@@ -173,11 +168,11 @@
             // and update modal window labels 
             document.modalForm.action = "{% url 'appointments_app:cancel_appointment' %}";
             const submit_button = document.getElementById('modalFormSubmitButton');
-            submit_button.innerText ='Cancel Appointment';
-            
+            submit_button.innerText = 'Cancel Appointment';
+
             //update title of modal window
             const form_title = document.getElementById('modalFormTitle');
-            form_title.innerText ='Cancel appointment?';
+            form_title.innerText = 'Cancel appointment?';
 
         } else {
             console.log('onCellClick -- Error something wrong colour is not defined. ');

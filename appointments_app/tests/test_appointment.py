@@ -262,5 +262,8 @@ class TestBookAppointment(TestCase):
                             "<td class='table-secondary' data-date="+"'" +
                             f'{self.booked_appointment}'+"'"+">07:20</td>",
                             html=True)
+        
 
 
+
+    
