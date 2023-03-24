@@ -4,7 +4,8 @@ from appointments_app.models import Appointment
 from users_app.models import Doctor
 from users_app.models import Patient
 from users_app.models import DoctorType
-from appointments_app.models import AppointmentStatus
+from appointments_app.models import DaysOff
+from appointments_app.models import WishList
 from django.contrib.auth.models import Group
 
 from django.contrib.auth import authenticate
@@ -101,7 +102,26 @@ class RegisterNewPatientSerializer(serializers.ModelSerializer):
     
 
 
-    
+class RequestDaysOffSerializer(serializers.ModelSerializer):
+    ''' Days off serialiser'''
+    # date_time_from = forms.DateTimeField()
+    # date_time_till = forms.DateTimeField() #(attrs={'type': 'datetime-local'})
+
+    class Meta:
+        model = DaysOff
+        fields = ['doctor','date_from', 'date_till']
+
+
+
+
+
+class AddToWishListSerializer(serializers.ModelSerializer):
+    ''' Add to wishlist serialiser '''
+
+    class Meta:
+        model = WishList
+        fields = ['patient', 'doctor', 'appointment_date', 'symptoms']
+
 
 class LoginSerializer(serializers.Serializer):
 

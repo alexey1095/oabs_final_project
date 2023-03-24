@@ -11,9 +11,9 @@ from users_app.models_factory import UserFactory
 from ..serializers import *
 
 
-class BookAppointmentAPITest(APITestCase):
+class AddToWishListAPITest(APITestCase):
 
-    good_url = reverse('apis:book_appointment')
+    good_url = reverse('apis:add_to_wishlist')
 
     def setUp(self):
 
@@ -21,12 +21,15 @@ class BookAppointmentAPITest(APITestCase):
         self.patient1 = PatientFactory.create()
         self.client.login(username=self.patient1.user.username,
                           password='fnfh!djdf8JJDSlfkd.sofidold73')
+        
+        # fields = ['patient', 'doctor', 'appointment_date', 'symptoms']
 
         self.good_post_data = {
             'appointment_date': '2023-02-20T07:00:00',
             'symptoms': 'test_symptoms',
-            'patient': '1',
-            'doctor': '1'}
+            'patient': self.patient1.pk,
+            'doctor': self.doctor1.pk,
+        }
 
         self.response_post = self.client.post(
             self.good_url, self.good_post_data, format='json')
@@ -42,7 +45,7 @@ class BookAppointmentAPITest(APITestCase):
         DoctorFactory.reset_sequence(0)
         PatientFactory.reset_sequence(0)
 
-    def test_apiBookAppointmentReturnSuccess(self):
+    def test_apiAddToWishlistReturnSuccess(self):
 
         self.assertEqual(self.response_post.status_code, 201)
 

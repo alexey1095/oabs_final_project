@@ -20,7 +20,7 @@ from users_app.models import Doctor
 from . import forms
 
 
-# @login_required(login_url='users_app:login_page')
+@login_required(login_url='users_app:login_page')
 def doctor_list_view(request):
     ''' Show list of doctors with buttons to book appointments'''
 
@@ -31,7 +31,7 @@ def doctor_list_view(request):
     )
 
 
-# @login_required(login_url='users_app:login_page')
+@login_required(login_url='users_app:login_page')
 def appointment_view(request, doctor_id):
     ''' return week calendar webpage for a given doctor for current 
     week with next and previous week buttons'''
@@ -62,7 +62,7 @@ def appointment_view(request, doctor_id):
     })
 
 
-# @login_required(login_url='users_app:login_page')
+@login_required(login_url='users_app:login_page')
 def send_week_calendar(request, doctor_id, year, week_number):
     ''' # generate and send week calendar --this url is to be accessed 
     via XMLHttpRequest from the week_calendar.html webpage '''
@@ -111,7 +111,7 @@ def send_week_calendar(request, doctor_id, year, week_number):
     return HttpResponse(week_html_table, content_type="text/html", status=200)
 
 
-# @login_required(login_url='users_app:login_page')
+@login_required(login_url='users_app:login_page')
 def book_appointment(request):
 
     if request.method != 'POST':
@@ -204,7 +204,7 @@ def book_appointment(request):
 #         cleaned_test = form.cleaned_data["test"]
 
 
-# @login_required(login_url='users_app:login_page')
+@login_required(login_url='users_app:login_page')
 def cancel_appointment(request):
 
     if request.method != 'POST':
@@ -265,7 +265,7 @@ def cancel_appointment(request):
     return HttpResponseRedirect(reverse("appointments_app:appointment_view", args=(doctor.pk,)))
 
 
-# @login_required(login_url='users_app:login_page')
+@login_required(login_url='users_app:login_page')
 def confirm_appointment(request):
     ''' This is for doctors to confirm appointment'''
 
@@ -319,12 +319,12 @@ def confirm_appointment(request):
 
     return HttpResponseRedirect(reverse("users_app:home_page"))
 
-
+@login_required(login_url='users_app:login_page')
 def request_daysoff(request):
     ''' This is for doctors to request days off'''
 
     try:
-        # checking if the current user is a doctor - only doctors can confirm appointments
+        # checking if the current user is a doctor - only doctors can request daysoff
         doctor = Doctor.objects.get(user=request.user)
     except Doctor.DoesNotExist:
         return HttpResponseNotFound("Error: current user is not a doctor -- access denied.")
@@ -374,7 +374,7 @@ def request_daysoff(request):
     return render(request, 'request_daysoff.html', {'daysoff_form': form,
                                                     'daysoff_list': daysoff_list})
 
-
+@login_required(login_url='users_app:login_page')
 def cancel_daysoff(request, pk):
 
     if request.method != 'GET':
@@ -410,7 +410,7 @@ def cancel_daysoff(request, pk):
     return HttpResponseRedirect(reverse("appointments_app:request_daysoff"))
 
 
-
+@login_required(login_url='users_app:login_page')
 def add_to_wishlist(request):
     
     if request.method != 'POST':

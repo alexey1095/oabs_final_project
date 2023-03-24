@@ -14,8 +14,14 @@ class TestDoctorListView(TestCase):
         
         self.doctor1 = DoctorFactory.create()
         self.doctor2 = DoctorFactory.create()
+
+        self.client.login(username=self.doctor1.user.username,
+                          password='fnfh!djdf8JJDSlfkd.sofidold73')
+
         self.response = self.client.get(self.good_url)
 
+
+       
     def teardown(self):
         pass
 

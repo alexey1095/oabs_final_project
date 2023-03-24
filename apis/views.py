@@ -1,6 +1,8 @@
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
 
 from django.db.models import Q
 from isoweek import Week
@@ -9,17 +11,21 @@ from users_app.models import Doctor
 from apis.serializers import DoctorSerializer
 from apis.serializers import BookedAppointmentSerializer
 from apis.serializers import NewAppointmentSerializer
+from apis.serializers import RequestDaysOffSerializer
 from apis.serializers import LoginSerializer
 from apis.serializers import ConfirmAppointmentSerializer
 from apis.serializers import RegisterNewPatientSerializer
+from apis.serializers import AddToWishListSerializer
 from appointments_app.models import Appointment
 from appointments_app.models import AppointmentStatus
+
 
 from django.contrib.auth import authenticate
 from django.contrib.auth import login
 
 
 @api_view(['GET'])
+@permission_classes((IsAuthenticated, ))
 def doctor_list(request):
     ''' return doctor list'''
 
@@ -30,6 +36,7 @@ def doctor_list(request):
 
 
 @api_view(['GET'])
+@permission_classes((IsAuthenticated, ))
 def booked_appointments_list(request, doctor_id, year, week_number):
     ''' return a list of booked timeslots'''
 
@@ -51,6 +58,7 @@ def booked_appointments_list(request, doctor_id, year, week_number):
 
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated, ))
 def book_appointment(request):
     ''' book appointment'''
     if request.method == 'POST':        
@@ -64,6 +72,7 @@ def book_appointment(request):
 
 
 @api_view(['PATCH'])
+@permission_classes((IsAuthenticated, ))
 def confirm_appointment(request, appointment_id):
     ''' confirm appointment'''
     if request.method == 'PATCH':
@@ -104,6 +113,34 @@ def register_patient(request):
                             status=status.HTTP_201_CREATED)
         return Response(serializer.errors,
                         status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated, ))
+def request_daysoff(request):
+    ''' request days off '''
+    if request.method == 'POST':        
+        serializer = RequestDaysOffSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated, ))
+def add_to_wishlist(request):
+    ''' add to wish list '''
+    if request.method == 'POST':        
+        serializer = AddToWishListSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
+
 
 
 

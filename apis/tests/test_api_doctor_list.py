@@ -2,7 +2,7 @@ from rest_framework.test import APITestCase
 from django.urls import reverse
 import json
 
-#from users_app.models_factory import PatientFactory
+from users_app.models_factory import PatientFactory
 from users_app.models_factory import DoctorFactory
 from users_app.models_factory import DoctorTypeFactory
 from users_app.models_factory import UserFactory
@@ -19,13 +19,21 @@ class DoctorListAPITest(APITestCase):
 
         self.doctor1 = DoctorFactory.create()
         self.doctor2 = DoctorFactory.create()
-        self.doctor3 = DoctorFactory.create()        
+        self.doctor3 = DoctorFactory.create()
+
+        self.patient1 = PatientFactory.create()       
+
+        self.client.login(username=self.patient1.user.username,
+                          password='fnfh!djdf8JJDSlfkd.sofidold73')
 
         self.response = self.client.get(self.good_url, format='json')
         self.response.render()
         self.data = json.loads(self.response.content)
 
+        
+
     def tearDown(self):
+        self.client.logout()
         User.objects.all().delete()
         DoctorType.objects.all().delete()
         Doctor.objects.all().delete()
