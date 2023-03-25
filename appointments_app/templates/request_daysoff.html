@@ -66,7 +66,7 @@
 <script>
     var onClick = function (daysoff_id, object) {
 
-        if (confirm("Are sure you want to cancell your days off?")) {
+        if (confirm("Are sure you want to cancel your days off?")) {
             //adopted from here https://stackoverflow.com/questions/73436370/django-button-redirecting-to-url-index
             // https://stackoverflow.com/questions/17832194/get-javascript-variables-value-in-django-url-template-tag
         document.location.href = "{% url 'appointments_app:cancel_daysoff' 999 %}".replace('999', daysoff_id);
@@ -154,10 +154,18 @@
                     <td>{{ dayoff.date_till }}</td>
                     <td>{{ dayoff.daysoff_status }}</td>
 
+                    
+                    {% if dayoff.daysoff_status.status != "Cancelled" %}
+
                     <td>
                         <button type="button" class="btn btn-primary"
                             onclick="onClick('{{ dayoff.pk }}', this)">Cancel</button>
+                            
                     </td>
+                    
+                    {% endif %}
+                    
+                    
 
                 </tr>
                 {% endfor %}
