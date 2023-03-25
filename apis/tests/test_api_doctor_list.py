@@ -1,17 +1,14 @@
 from rest_framework.test import APITestCase
 from django.urls import reverse
 import json
-
 from users_app.models_factory import PatientFactory
 from users_app.models_factory import DoctorFactory
 from users_app.models_factory import DoctorTypeFactory
 from users_app.models_factory import UserFactory
-
 from ..serializers import *
 
 
 class DoctorListAPITest(APITestCase):
-
     
     good_url = reverse('apis:doctor_list')
 
@@ -37,16 +34,12 @@ class DoctorListAPITest(APITestCase):
         User.objects.all().delete()
         DoctorType.objects.all().delete()
         Doctor.objects.all().delete()
-
         UserFactory.reset_sequence(0)
         DoctorTypeFactory.reset_sequence(0)
         DoctorFactory.reset_sequence(0)
 
     def test_apiDoctorListReturnSuccess(self):
-
         self.assertEqual(self.response.status_code, 200)
-
-        #
 
     def test_apiNumberDoctorIsCorrect(self):
         self.assertEqual(len(self.data), 3)

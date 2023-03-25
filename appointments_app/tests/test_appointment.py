@@ -1,8 +1,8 @@
 from datetime import datetime
+from datetime import timedelta
 from django.test import TestCase
 from django.urls import reverse
 from django.test import Client
-
 from users_app.models_factory import PatientFactory
 from users_app.models_factory import DoctorFactory
 from appointments_app.models_factory import WishListStatusFactory
@@ -10,18 +10,11 @@ from appointments_app.models_factory import AppointmentStatusFactory
 from appointments_app.models_factory import DaysOffStatusFactory
 from appointments_app.models import WishListStatus
 from appointments_app.models import Appointment
-from appointments_app.models import AppointmentStatus
-
-# from appointments_app.models_factory import
-from users_app.models import Doctor
 from users_app.models import Patient
-from ..models import DaysOff
 from django.contrib.auth.models import User
-from django.db.models import Q
 
 
 class TestBookAppointment(TestCase):
-
     good_url = reverse('appointments_app:book_appointment')
 
     response = None
@@ -44,9 +37,18 @@ class TestBookAppointment(TestCase):
 
         self.client.login(username=self.patient1.user.username,
                           password='fnfh!djdf8JJDSlfkd.sofidold73')
+         # determine today date
+        day = datetime.now()
 
-        self.date_now = datetime.now()
-        # self.appointment_date =  datetime.now()#'2023-04-20'
+        # get the weekday
+        weekday = datetime.now().isoweekday() 
+        
+        # if today is Saturday or Sunday then take the next monday as the current date
+        if weekday == 6 or weekday ==7:
+            day += timedelta(days=8 - day.isoweekday())
+
+            
+        self.date_now = day
         self.appointment_date = f'{self.date_now:%Y-%m-%d}' + " 07:20"
         # this is the same date but in different format
         self.booked_appointment = f'{self.date_now:%d-%m-%Y}' + " 07:20"
@@ -111,8 +113,6 @@ class TestBookAppointment(TestCase):
                             html=True)
 
     def test_bookedNonConfirmedAppointmentHasCorrectRedColorForNonOwner(self):
-
-        #self.test_confirmAppointment()
 
         response_get = self.client_patient2.get(reverse(
             'appointments_app:send_week_calendar',
@@ -182,25 +182,32 @@ class TestBookAppointment(TestCase):
                             f'{self.booked_appointment}'+"'"+">07:20</td>",
                             html=True)
 
-        # "<td class='table-warning' data-date="+self.appointment_date)
-        # self.assertContains( response_get, "<td class='table-success' data-date='03-03-2023 07:00'>07:00</td>", html=True)#"<td class='table-warning' data-date="+self.appointment_date)
-
-        # <td class=\'table-success\' data-date=\'03-03-2023 07:00\'>07:00</td>
 
     def test_availbleAppointmentHasCorrectGreenColor(self):
+
+        # determine today date
+        day = datetime.now()
+
+        # get the weekday
+        weekday = datetime.now().isoweekday() 
+        
+        # if today is Saturday or Sunday then take the next monday as the current date
+        if weekday == 6 or weekday ==7:
+            day += timedelta(days=8 - day.isoweekday())
+
+        # get the week number
+        week_number = day.isocalendar().week
+
+        # get the year
+        year = day.year   
+        
         response_get = self.client.get(reverse(
             'appointments_app:send_week_calendar',
             kwargs={
                 'doctor_id': self.doctor1.pk,
-                'year': f'{self.date_now:%Y}',
-                'week_number': self.date_now.isocalendar().week}))
-
-        # "<td class='table-warning' data-date="+self.appointment_date)
-        # self.assertContains(
-        #     response_get, "<td class='table-success' data-date='03-03-2023 07:00'>07:00</td>", html=True)
-        # self.assertContains( response_get, "<td class='table-success' data-date='03-03-2023 07:00'>07:00</td>", html=True)#"<td class='table-warning' data-date="+self.appointment_date)
-
-        # <td class=\'table-success\' data-date=\'03-03-2023 07:00\'>07:00</td>
+                'year': year, #f'{self.date_now:%Y}',
+                'week_number': week_number }))#self.date_now.isocalendar().week}))
+      
 
         self.assertContains(response_get,
                             "<td class='table-success' data-date="+"'" +
@@ -237,7 +244,6 @@ class TestBookAppointment(TestCase):
         self.assertContains(
             self.response, "if (cell.className == 'table-success')")
         self.assertContains(self.response, "Next Week")
-
 
 
     def test_daysOffHasCorrectGreyColor(self):    

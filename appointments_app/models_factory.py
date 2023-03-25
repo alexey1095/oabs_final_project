@@ -1,22 +1,17 @@
 from datetime import datetime
 import factory
 import factory.fuzzy
-
-
 from appointments_app.models import Appointment
 from appointments_app.models import AppointmentStatus
 from appointments_app.models import DaysOffStatus
 from appointments_app.models import WishListStatus
 from appointments_app.models import WishList
-
 from users_app.models_factory import PatientFactory
 from users_app.models_factory import DoctorFactory
 
 
 class AppointmentStatusFactory(factory.django.DjangoModelFactory):
-    ''' Create model factory for AppointmentStatus model'''
-
-    #status = 'Requested'
+    ''' Create model factory for AppointmentStatus model'''    
 
     status = factory.Iterator(['Requested','Confirmed'])
 
@@ -28,11 +23,7 @@ class AppointmentStatusFactory(factory.django.DjangoModelFactory):
 
 
 class AppointmentFactory(factory.django.DjangoModelFactory):
-    ''' Create model factory for Appointment model'''
-
-    # AppointmentStatusFactory.create() #(status='Requested')
-    # AppointmentStatusFactory.create()
-    # # AppointmentStatusFactory(status='Confirmed')
+    ''' Create model factory for Appointment model'''  
 
     patient = factory.SubFactory(PatientFactory)
     doctor = factory.SubFactory(DoctorFactory)
@@ -47,11 +38,7 @@ class AppointmentFactory(factory.django.DjangoModelFactory):
 
 
 class DaysOffStatusFactory(factory.django.DjangoModelFactory):
-    ''' Create model factory for DaysOffStatus model'''
-
-    
-
-    #status = factory.Iterator(['Booked',''])
+    ''' Create model factory for DaysOffStatus model'''    
 
     class Meta:
         model = DaysOffStatus
@@ -62,19 +49,13 @@ class DaysOffStatusFactory(factory.django.DjangoModelFactory):
 
 
 class WishListStatusFactory(factory.django.DjangoModelFactory):
-    ''' Create model factory for WishListStatus model'''
-
-    
-
-    #status = factory.Iterator(['Booked',''])
+    ''' Create model factory for WishListStatus model'''   
 
     class Meta:
         model = WishListStatus
         # the django_get_or_create methos is added here to avoid the UNIQUE constraint break
         # as discussed here https://joequery.me/code/factory-boy-handle-unique-constraints/
         django_get_or_create = ('status',)
-
-
 
 
 

@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseNotAllowed,  HttpResponseBadRequest, HttpResponseNotFound
+from django.http import HttpResponse
+from django.http import HttpResponseNotAllowed
+from django.http import HttpResponseNotFound
 from isoweek import Week
 from .calendar_html import WeekAppointmentCalendar
 from datetime import timedelta
@@ -11,12 +13,9 @@ from django.urls import reverse
 from django.db import IntegrityError
 from django.db.models import Q
 from datetime import datetime
-
 from . import models
-
 from users_app.models import Patient
 from users_app.models import Doctor
-
 from . import forms
 
 
@@ -36,11 +35,21 @@ def appointment_view(request, doctor_id):
     ''' return week calendar webpage for a given doctor for current 
     week with next and previous week buttons'''
 
-    # get the current week number
-    week_number = datetime.now().isocalendar().week
+    # determine today date
+    day = datetime.now()
 
-    # get the current year
-    year = datetime.now().year
+    # get the weekday
+    weekday = datetime.now().isoweekday() 
+    
+    # if today is Saturday or Sunday then take the next monday as the current date
+    if weekday == 6 or weekday ==7:
+        day += timedelta(days=8 - day.isoweekday())
+
+    # get the week number
+    week_number = day.isocalendar().week
+
+    # get the year
+    year = day.year   
 
     try:
         query_set = Doctor.objects.get(pk=doctor_id)
@@ -141,7 +150,6 @@ def book_appointment(request):
     except IntegrityError:
         messages.error(request, "Error: DB Integrity error ")
 
-    #doctor_id = request.POST['doctor']
     doctor_id = form.cleaned_data['doctor'].pk
     appointment_date = form.cleaned_data['appointment_date']
 
@@ -172,40 +180,12 @@ def book_appointment(request):
         entry.save()
 
 
-
-
     return HttpResponseRedirect(reverse("appointments_app:appointment_view", args=(doctor_id,)))
 
-    # check if the time slot is availble for booking
-    # models.Appointment.objects.filter(
-    #     doctor=form.cleaned_data['doctor'],
-    #     appointment_date = form.cleaned_data['appointment_date'],)
-
-    #    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    # doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    # appointment_date = models.DateTimeField(blank=False)
-    # symptoms = models.CharField(max_length=256, blank=False)
-    # request_date = models.DateTimeField(blank=False, auto_now_add=True)
-    # appointment_status = models.ForeignKey(
-
-    # if a GET (or any other method) we'll create a blank form
-
-    # return
-    # return;  render(request, 'name.html', {'form': form})
-
-
-# class YourForm(forms.Form):
-#     test = forms.CharField(label='A test label', widget=forms.Textarea(attrs={"placeholder":"Your Placeholder", "rows":6, "cols":45}), max_length=150)
-
-
-# if request.method == "POST":
-#     form = YourForm(request.POST)
-#     if form.is_valid():
-#         cleaned_test = form.cleaned_data["test"]
-
-
+    
 @login_required(login_url='users_app:login_page')
 def cancel_appointment(request):
+    ''' Cancel appointment'''
 
     if request.method != 'POST':
         return HttpResponseNotAllowed(('POST',))
@@ -285,7 +265,6 @@ def confirm_appointment(request):
         return HttpResponseRedirect(reverse("users_app:home_page"))
 
     try:
-        # Patient.objects.get(user=form.cleaned_data['patient'])
         patient = form.cleaned_data['patient']
         doctor = Doctor.objects.get(user=request.user)
         appointment_date = form.cleaned_data['appointment_date']
@@ -376,12 +355,13 @@ def request_daysoff(request):
 
 @login_required(login_url='users_app:login_page')
 def cancel_daysoff(request, pk):
+    '''Cancel daysoff'''
 
     if request.method != 'GET':
         return HttpResponseNotAllowed(('GET',))
     
 
-     # checking if the current user is a doctor - only doctors can confirm appointments
+     # checking if the current user is a doctor - only doctors can cancel daysoff
     try:
         doctor = Doctor.objects.get(user=request.user)
 
@@ -412,6 +392,7 @@ def cancel_daysoff(request, pk):
 
 @login_required(login_url='users_app:login_page')
 def add_to_wishlist(request):
+    ''' Adding a booked appointment into wishlist'''
     
     if request.method != 'POST':
         return HttpResponseNotAllowed(('POST',))
@@ -420,13 +401,10 @@ def add_to_wishlist(request):
 
     if not form.is_valid():
         messages.error(request, "Error: " + form.errors)
-        return HttpResponseRedirect(reverse("appointment_view"))
-    
-    
+        return HttpResponseRedirect(reverse("appointment_view"))    
 
     try:
-        patient = Patient.objects.get(user=request.user)
-        #patient_id = patient.pk
+        patient = Patient.objects.get(user=request.user)        
 
     except Patient.DoesNotExist:
         return HttpResponseNotFound("Error: You are not registered as a patient.")

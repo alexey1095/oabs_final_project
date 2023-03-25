@@ -16,16 +16,13 @@ class AppointmentSerializer(serializers.ModelSerializer):
         model = Appointment
         fields = "__all__"
 
-
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = ['first_name', 'last_name']
 
 
 class DoctorTypeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = DoctorType
         fields = ['type']
@@ -41,35 +38,29 @@ class DoctorSerializer(serializers.ModelSerializer):
 
 
 class BookedAppointmentSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Appointment
         fields = ["appointment_date", "doctor", "pk"]
 
 
 class NewAppointmentSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Appointment
         fields = ["appointment_date", "symptoms", "patient", "doctor"]
 
 
 class ConfirmAppointmentSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Appointment
         fields= '__all__'
 
 
-
 class RegisterNewUserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = ['username', 'password','first_name', 'last_name']
 
 class RegisterNewPatientSerializer(serializers.ModelSerializer):
-
 
     user = RegisterNewUserSerializer()
 
@@ -78,15 +69,13 @@ class RegisterNewPatientSerializer(serializers.ModelSerializer):
         fields= ['user','dob', 'home_address', 'home_phone']
 
 
-    def create(self, validated_data):
-        #user = User(validated_data['user'])
+    def create(self, validated_data):        
         user = User.objects.create_user(
             username= validated_data['user']['username'],
             password = validated_data['user']['password'],
             first_name = validated_data['user']['first_name'],
             last_name=validated_data['user']['last_name'])
-        #user.save()
-        
+                
         # adding a new user to a 'patients' group
         patients_group = Group.objects.get(name='patients') 
         user.groups.add(patients_group)
@@ -101,49 +90,31 @@ class RegisterNewPatientSerializer(serializers.ModelSerializer):
         return patient
     
 
-
 class RequestDaysOffSerializer(serializers.ModelSerializer):
-    ''' Days off serialiser'''
-    # date_time_from = forms.DateTimeField()
-    # date_time_till = forms.DateTimeField() #(attrs={'type': 'datetime-local'})
-
     class Meta:
         model = DaysOff
         fields = ['doctor','date_from', 'date_till']
 
 
-
-
-
 class AddToWishListSerializer(serializers.ModelSerializer):
-    ''' Add to wishlist serialiser '''
-
     class Meta:
         model = WishList
         fields = ['patient', 'doctor', 'appointment_date', 'symptoms']
 
 
 class LoginSerializer(serializers.Serializer):
-
     username = serializers.CharField(max_length=150, write_only=True)
     password = serializers.CharField(max_length=150, write_only=True)
     
 
-    class Meta:
-        # model = User
-        fields = ['username', 'password']
-        #read_only_fields = ('username', 'password')
-
+    class Meta:        
+        fields = ['username', 'password']        
 
     def validate(self,data):
-
         cleaned_data = super().validate(data)
-
         username = cleaned_data.get("username")
         password = cleaned_data.get("password")
-
-        if username and password:
-           
+        if username and password:       
             user = authenticate(request=self.context.get('request'),
                                 username=username, password=password)
             if not user:               
@@ -154,36 +125,4 @@ class LoginSerializer(serializers.Serializer):
         # We have a valid user, put it in the serializer's validated_data.
         # It will be used in the view.
         data['user'] = user
-        return data
-
-
-        # username = data.get('username')
-        # password = data.get('password')
-
-
-        #fields = ["appointment_date", "patient"]
-        #fields = ["appointment_status"]
-
-    # def update(self, instance, validated_data):
-    #     """
-    #     Update and return an existing `Snippet` instance, given the validated data.
-    #     """
-
-    # instance.email = validated_data.get('email', instance.email)
-    #     instance.content = validated_data.get('content', instance.content)
-    #     instance.created = validated_data.get('created', instance.created)
-    #     instance.save()
-    #     return instance
-
-
-        
-
-        
-        
-        
-    #     instance.appointment_status = AppointmentStatus.objects.get(status='Confirmed')
-    #     instance.save()
-    #     return instance
-
-    
-
+        return data        

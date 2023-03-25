@@ -34,19 +34,13 @@
     {% endfor %}
 
 
-
-
 <script>
-    var onClick = function(doctor_id,object) {
-        // object.innerHTML = value;
-        //https://stackoverflow.com/questions/73436370/django-button-redirecting-to-url-index
+    var onClick = function(doctor_id,object) {      
+        //adopted from here https://stackoverflow.com/questions/73436370/django-button-redirecting-to-url-index
+        //https://stackoverflow.com/questions/17832194/get-javascript-variables-value-in-django-url-template-tag
+        
         document.location.href = "{% url 'appointments_app:appointment_view' 999 %}".replace('999', doctor_id);
             };
-
-            //Replace --> https://stackoverflow.com/questions/17832194/get-javascript-variables-value-in-django-url-template-tag
-
-
-
 
 </script>
 

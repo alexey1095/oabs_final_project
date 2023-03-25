@@ -3,26 +3,17 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
-
 from django.db.models import Q
 from isoweek import Week
-
 from users_app.models import Doctor
 from apis.serializers import DoctorSerializer
 from apis.serializers import BookedAppointmentSerializer
 from apis.serializers import NewAppointmentSerializer
 from apis.serializers import RequestDaysOffSerializer
-from apis.serializers import LoginSerializer
 from apis.serializers import ConfirmAppointmentSerializer
 from apis.serializers import RegisterNewPatientSerializer
 from apis.serializers import AddToWishListSerializer
 from appointments_app.models import Appointment
-from appointments_app.models import AppointmentStatus
-
-
-from django.contrib.auth import authenticate
-from django.contrib.auth import login
-
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated, ))
@@ -90,7 +81,6 @@ def confirm_appointment(request, appointment_id):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-        #status_pk = AppointmentStatus.objects.get(status='Confirmed').pk
         serializer = ConfirmAppointmentSerializer(appointment, data={'appointment_status':'Confirmed'}, partial=True)
         if serializer.is_valid():
 
@@ -141,31 +131,3 @@ def add_to_wishlist(request):
         return Response(serializer.errors,
                         status=status.HTTP_400_BAD_REQUEST)
 
-
-
-
-# @api_view(['POST'])
-# def login(request):
-#     ''' login '''
-#     if request.method == 'POST':        
-#         serializer = LoginSerializer(data=request.data, context={"request": request })
-#         if serializer.is_valid():
-
-#             # user = authenticate(
-#             #     username=serializer.cleaned_data['username'],
-#             #     password=serializer.cleaned_data['password'],
-#             # )
-
-#             user = serializer.validated_data['user']
-
-#             if user is not None:
-#                 if user.is_active:
-#                     login(request, user)
-#                     return Response(serializer.data,
-#                             status=status.HTTP_202_ACCEPTED)
-#             return Response(serializer.data,
-#                             status=status.HTTP_406_NOT_ACCEPTABLE)
-                            
-            
-#         return Response(serializer.errors,
-#                         status=status.HTTP_400_BAD_REQUEST)

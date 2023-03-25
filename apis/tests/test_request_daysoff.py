@@ -1,13 +1,9 @@
 from rest_framework.test import APITestCase
 from django.urls import reverse
-
-
 from users_app.models_factory import PatientFactory
 from users_app.models_factory import DoctorFactory
 from users_app.models_factory import DoctorTypeFactory
 from users_app.models_factory import UserFactory
-
-# from ..models_factory import DoctorFactory, UserFactory, DoctorTypeFactory, PatientFactory
 from ..serializers import *
 
 
@@ -17,8 +13,7 @@ class RequestDaysOffAPITest(APITestCase):
 
     def setUp(self):
 
-        self.doctor1 = DoctorFactory.create()
-        #self.patient1 = PatientFactory.create()
+        self.doctor1 = DoctorFactory.create()        
         self.client.login(username=self.doctor1.user.username,
                           password='fnfh!djdf8JJDSlfkd.sofidold73')
 
@@ -36,7 +31,6 @@ class RequestDaysOffAPITest(APITestCase):
         User.objects.all().delete()
         DoctorType.objects.all().delete()
         Doctor.objects.all().delete()
-
         UserFactory.reset_sequence(0)
         DoctorTypeFactory.reset_sequence(0)
         DoctorFactory.reset_sequence(0)
@@ -44,6 +38,4 @@ class RequestDaysOffAPITest(APITestCase):
 
     def test_apiRequestDaysOffReturnSuccess(self):
 
-        self.assertEqual(self.response_post.status_code, 201)
-
-        #
+        self.assertEqual(self.response_post.status_code, 201)        

@@ -1,7 +1,4 @@
 {% extends "./base.html" %}
-
-
-
 {% block title %} Home page - Patient {% endblock %}
 
 {% block nav %}
@@ -15,10 +12,6 @@
 
 
 <div class="row">
-
-
-    <!-- <p class="h1">Home page - Patient </p> -->
-    <!-- <h4>Hello {{ user.first_name }} {{ user.last_name }} </h4> -->
 
     <!-- As a heading -->
     <nav class="navbar navbar-light ">
@@ -42,8 +35,6 @@
             </nav>
 
         </div>
-
-        <!-- <h6> List of upcoming and previous appointments </h6> <br> -->
 
         <table class="table table-success table-striped">
             <thead>
@@ -97,7 +88,8 @@
                             {% csrf_token %}
 
                             <input type="hidden" name="doctor" value="{{ entry.doctor.pk }}" />
-                            <input type="hidden" name="appointment_date" value="{{ entry.appointment_date|date:'c' }}" />
+                            <input type="hidden" name="appointment_date"
+                                value="{{ entry.appointment_date|date:'c' }}" />
                             <input type="hidden" name="symptoms" value='{{ entry.symptoms }}' />
 
                             <button type="submit" class="btn btn-primary">Book</button>
@@ -106,28 +98,16 @@
 
                     </td>
 
-
-
-
                     {% else %}
                     <td></td>
                     {% endif %}
-
-
 
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-
 </div>
-
-
-
-
-
-
 
 {% endif %}
 

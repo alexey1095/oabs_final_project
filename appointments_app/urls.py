@@ -29,8 +29,10 @@ urlpatterns = [
      # confirm an appointment
     path('confirm/', views.confirm_appointment, name='confirm_appointment'),
 
+    # request daysoff
     path('request_daysoff/', views.request_daysoff, name='request_daysoff'),
 
+    # cancel daysoff
     path('cancel_daysoff/<int:pk>/', views.cancel_daysoff, name='cancel_daysoff'),
 
      # book an appointment

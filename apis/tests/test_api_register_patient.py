@@ -1,32 +1,14 @@
 from rest_framework.test import APITestCase
 from django.urls import reverse
 import json
-
-from users_app.models_factory import PatientFactory
-from users_app.models_factory import DoctorFactory
-from users_app.models_factory import DoctorTypeFactory
-from users_app.models_factory import UserFactory
-
-
 from django.contrib.auth.models import User
 from users_app.models import Patient
-
-from appointments_app.models_factory import AppointmentFactory
-
 from ..serializers import *
-
-from datetime import datetime
-
 from django.contrib.auth.models import Group
-
 
 class RegisterPatientAPITest(APITestCase):
 
-    ''' Example of response
-
-
-    '''
-
+    
     good_url = reverse('apis:register_patient')
 
     def setUp(self):
@@ -57,14 +39,8 @@ class RegisterPatientAPITest(APITestCase):
 
 
     def test_apiPatientRegistartionReturnSuccess(self):
-    
-
         self.assertEqual(self.response_post.status_code, 201)
-
-    # def test_apiNumberAppointmentBooked(self):
-    #     self.assertEqual(len(self.data), 2)
-
-        #
+    
     
     def  test_apiPatientRegistrationReturnAllDataCorrect(self):
 
@@ -77,19 +53,11 @@ class RegisterPatientAPITest(APITestCase):
         self.assertEqual(data['home_address'], 'patient0_home_address')
         self.assertEqual(data['home_phone'], '0123456789')
 
-
-
-
-
         
     def test_apiPatientRegistartionReturnFailOnBadRequest(self):
-
      
         self.response_post = self.client.post(
             self.good_url, self.bad_post_data, format='json')
         self.response_post.render()
-
-    
-
         self.assertEqual(self.response_post.status_code, 400)
 

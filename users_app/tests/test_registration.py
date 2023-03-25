@@ -4,35 +4,24 @@ from django.contrib.auth.models import User
 from .. models import Patient
 from django.contrib.auth.models import Group
 
-from users_app.models_factory import DoctorFactory
-
 
 class TestRegistrationView(TestCase):
 
     good_url = reverse('users_app:registration_page')
-
     response = None
 
     def setUp(self):
-       
-
 
         patients_group = Group()
         patients_group.name = 'patients'
-        patients_group.save()
-        
-        
-        # self.doctor1 = DoctorFactory.create()
-        # self.doctor2 = DoctorFactory.create()
+        patients_group.save()     
        
 
-    def teardown(self):
-        #self.client.logout()
+    def teardown(self):        
         Patient.objects.all().delete()
         User.objects.all().delete()
 
     def test_registrationViewReturnSuccess(self):
-
         response = self.client.get(self.good_url)
         self.assertEqual(response.status_code, 200)
 

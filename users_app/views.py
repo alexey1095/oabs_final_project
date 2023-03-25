@@ -1,35 +1,20 @@
+from datetime import datetime
+from datetime import timedelta
 from django.shortcuts import render
-
 from django.contrib.auth import authenticate
 from django.contrib.auth import login
 from django.contrib.auth import logout
-
 from django.contrib.auth.decorators import login_required
-
 from django.urls import reverse
-
 from django.contrib import messages
-
-from datetime import datetime
-
-# remove this
-from django.http import HttpResponse
-
 from django.http import HttpResponseRedirect
-
 from django.http import HttpResponseNotFound
-
 from .models import Patient, Doctor
-
 from appointments_app.models import Appointment
 from appointments_app.models import WishList
-
 from django.contrib.auth.models import Group
-
-
 from . import forms
 
-# Create your views here.
 
 def registration_view(request):
     ''' Patient registration view'''
@@ -39,9 +24,9 @@ def registration_view(request):
         if form.is_valid():
             try:
                 user = form.save()
-                
+
                 # adding a new user to a 'patients' group
-                patients_group = Group.objects.get(name='patients') 
+                patients_group = Group.objects.get(name='patients')
                 user.groups.add(patients_group)
 
                 user.save()
@@ -49,18 +34,17 @@ def registration_view(request):
                 # adding new user to patient table
                 patient = Patient(
                     user=user,
-                    dob = form.cleaned_data['dob'],
-                    home_address = form.cleaned_data['home_address'],
-                    home_phone = form.cleaned_data['home_phone'] )
-                
+                    dob=form.cleaned_data['dob'],
+                    home_address=form.cleaned_data['home_address'],
+                    home_phone=form.cleaned_data['home_phone'])
+
                 patient.save()
 
-                
-            except Exception:                                
-                    messages.error(
-                         request, "Sorry, there was a problem during registration process. ")
-                    return HttpResponseRedirect(reverse("users_app:registration_page"))
-                    
+            except Exception:
+                messages.error(
+                    request, "Sorry, there was a problem during registration process. ")
+                return HttpResponseRedirect(reverse("users_app:registration_page"))
+
             messages.success(request, "Your registration has been successful.")
             return HttpResponseRedirect(reverse("users_app:login_page"))
 
@@ -116,44 +100,44 @@ def home_view(request):
 
         try:
             patient = Patient.objects.get(user=request.user)
-            appointments = Appointment.objects.filter(patient=patient).order_by('-appointment_date')[:20]
-            wishlist = WishList.objects.filter(patient=patient).order_by('-appointment_date')[:20]
-
+            appointments = Appointment.objects.filter(
+                patient=patient).order_by('-appointment_date')[:20]
+            wishlist = WishList.objects.filter(
+                patient=patient).order_by('-appointment_date')[:20]
 
         except Patient.DoesNotExist:
             return HttpResponseNotFound("Error: Patient_id not found.")
-        
-        # except Appointment.DoesNotExist:
-        #     return HttpResponseNotFound("Error: Appointment not found.")
-        
+
         except Exception:
             return HttpResponseNotFound("Error: DB error .")
 
-        # try:
-            # limit number to 20 records
-        # getting appointments for the patient, order them form newest to oldest and slicing the first 20
-        #appointments = Appointment.objects.filter(patient=patient).order_by('-appointment_date')[:20]
-        # except Appointment.
-        #     return HttpResponseNotFound("Error: Patient_id not found.")
-
         return render(request,
-                      'home_patient.html', 
-                      context={'user': request.user, 
+                      'home_patient.html',
+                      context={'user': request.user,
                                'appointments': appointments,
                                'wishlist': wishlist})
 
     # user belongs to "doctors" group
     elif request.user.groups.filter(name='doctors').exists():
 
+        # return week calendar webpage for a given doctor for current
+        # week with next and previous week buttons       
 
-        ''' return week calendar webpage for a given doctor for current 
-        week with next and previous week buttons'''
+        # determine today date
+        day = datetime.now()
 
-        # get the current week number
-        week_number = datetime.now().isocalendar().week
+        # get the weekday
+        weekday = datetime.now().isoweekday() 
+        
+        # if today is Saturday or Sunday then take the next monday as the current date
+        if weekday == 6 or weekday ==7:
+            day += timedelta(days=8 - day.isoweekday())
 
-        # get the current year
-        year = datetime.now().year
+        # get the week number
+        week_number = day.isocalendar().week
+
+        # get the year
+        year = day.year   
 
         doctor = request.user
 
@@ -162,7 +146,7 @@ def home_view(request):
             first_name = query_set.user.first_name
             last_name = query_set.user.last_name
             doctor_name = "Dr. " + first_name + " " + last_name
-        
+
         except Doctor.DoesNotExist:
             return HttpResponseNotFound("Error: Doctor_id not found.")
 
@@ -175,11 +159,6 @@ def home_view(request):
             "year": year,
             "week_number": week_number,
         })
-
-
-
-
-        # return render(request, 'home_doctor.html', {'user': request.user})
 
     # something wrong - no group assigned to user
     else:

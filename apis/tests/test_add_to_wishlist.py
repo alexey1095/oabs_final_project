@@ -1,13 +1,9 @@
 from rest_framework.test import APITestCase
 from django.urls import reverse
-
-
 from users_app.models_factory import PatientFactory
 from users_app.models_factory import DoctorFactory
 from users_app.models_factory import DoctorTypeFactory
 from users_app.models_factory import UserFactory
-
-# from ..models_factory import DoctorFactory, UserFactory, DoctorTypeFactory, PatientFactory
 from ..serializers import *
 
 
@@ -20,9 +16,7 @@ class AddToWishListAPITest(APITestCase):
         self.doctor1 = DoctorFactory.create()
         self.patient1 = PatientFactory.create()
         self.client.login(username=self.patient1.user.username,
-                          password='fnfh!djdf8JJDSlfkd.sofidold73')
-        
-        # fields = ['patient', 'doctor', 'appointment_date', 'symptoms']
+                          password='fnfh!djdf8JJDSlfkd.sofidold73')        
 
         self.good_post_data = {
             'appointment_date': '2023-02-20T07:00:00',
@@ -39,7 +33,6 @@ class AddToWishListAPITest(APITestCase):
         User.objects.all().delete()
         DoctorType.objects.all().delete()
         Doctor.objects.all().delete()
-
         UserFactory.reset_sequence(0)
         DoctorTypeFactory.reset_sequence(0)
         DoctorFactory.reset_sequence(0)
@@ -49,4 +42,3 @@ class AddToWishListAPITest(APITestCase):
 
         self.assertEqual(self.response_post.status_code, 201)
 
-        #

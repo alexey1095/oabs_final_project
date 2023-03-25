@@ -5,24 +5,29 @@ from django.db.models import Q
 
 from django.utils import timezone
 
-# Create your models here.
-
 
 class AppointmentStatus(models.Model):
+    ''' Store appointment status'''
+    
     status = models.CharField(max_length=256, blank=False, unique=True)
+
+    # Data seeding : Requested,Attended, Cancelled_by_patient,
+    # DNA, Confirmed, Days_off
 
     def __str__(self):
         return f'{self.status}'
 
 
 class Appointment(models.Model):
+    '''Store appointment details'''
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     appointment_date = models.DateTimeField(blank=False)
     symptoms = models.CharField(max_length=256, blank=False)
 
-    # https://github.com/FactoryBoy/factory_boy/issues/102
-    request_date = models.DateTimeField(default = timezone.now)#(default=timezone.now())#(blank=False, auto_now_add=True)
+    # The "timezone.now" has been added to avoid issue during testing as 
+    # described here https://github.com/FactoryBoy/factory_boy/issues/102
+    request_date = models.DateTimeField(default = timezone.now)
     appointment_status = models.ForeignKey(
         AppointmentStatus, on_delete=models.CASCADE, to_field='status', default='Requested')
 
@@ -37,13 +42,17 @@ class Appointment(models.Model):
         return f'{self.appointment_date} {self.doctor}'
 
 class DaysOffStatus(models.Model):
+    ''' DaysOff status '''
     status = models.CharField(max_length=256, blank=False, unique=True)
+
+    # Data seeding: Cancelled, Booked
 
     def __str__(self):
         return f'{self.status}'
 
 
-class DaysOff(models.Model):    
+class DaysOff(models.Model):
+    ''' Store details for daysoff model'''    
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     date_from = models.DateField(blank=False)
     date_till = models.DateField(blank=False)
@@ -51,8 +60,8 @@ class DaysOff(models.Model):
         DaysOffStatus, on_delete=models.CASCADE, to_field='status', default='Booked')
     comment = models.CharField(max_length=256, blank=True)
 
-    # https://github.com/FactoryBoy/factory_boy/issues/102
-    request_date = models.DateTimeField(default = timezone.now)#(default=timezone.now())#(blank=False, auto_now_add=True)
+    # The "timezone.now" is added to avoid issues during testing https://github.com/FactoryBoy/factory_boy/issues/102
+    request_date = models.DateTimeField(default = timezone.now)
     
     class Meta:
 
@@ -65,23 +74,23 @@ class DaysOff(models.Model):
 
 
 class WishListStatus(models.Model):
+    ''' Store wishlist status'''
     status = models.CharField(max_length=256, blank=False, unique=True)
+
+    # Data seeding: Booked, Availble, Waiting
 
     def __str__(self):
         return f'{self.status}'
 
-
-
-
-
 class WishList(models.Model):
+    ''' WishList details'''
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     appointment_date = models.DateTimeField(blank=False)
     symptoms = models.CharField(max_length=256, blank=False)
 
-    # https://github.com/FactoryBoy/factory_boy/issues/102
-    request_date = models.DateTimeField(default = timezone.now)#(default=timezone.now())#(blank=False, auto_now_add=True)
+    # adopted from here https://github.com/FactoryBoy/factory_boy/issues/102
+    request_date = models.DateTimeField(default = timezone.now)
     wishlist_status = models.ForeignKey(
         WishListStatus, on_delete=models.CASCADE, to_field='status', default='Waiting')
 
