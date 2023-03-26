@@ -7,6 +7,7 @@ from users_app.models import DoctorType
 
 
 class UserFactory(factory.django.DjangoModelFactory):
+    ''' Getnerate users for testing'''
 
     class Meta:
         model = User
@@ -22,6 +23,7 @@ class UserFactory(factory.django.DjangoModelFactory):
 
 
 class DoctorTypeFactory(factory.django.DjangoModelFactory):
+    ''' Doctor types for testing'''
     
     class Meta:
         model = DoctorType
@@ -29,6 +31,7 @@ class DoctorTypeFactory(factory.django.DjangoModelFactory):
 
 
 class DoctorFactory(factory.django.DjangoModelFactory):
+    ''' Doctor factory'''
 
     class Meta:
         model = Doctor
@@ -42,6 +45,7 @@ class DoctorFactory(factory.django.DjangoModelFactory):
 
 
 class PatientFactory(factory.django.DjangoModelFactory):
+    ''' Patient factory'''
 
     class Meta:
         model = Patient
